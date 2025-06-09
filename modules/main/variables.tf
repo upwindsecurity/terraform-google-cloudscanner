@@ -1,0 +1,160 @@
+### Upwind Related
+# Test comment for terraform-docs regeneration
+
+variable "upwind_organization_id" {
+  type        = string
+  description = "The Upwind Organization ID."
+
+  validation {
+    condition     = can(regex("^org_[a-zA-Z0-9]{1,}$", var.upwind_organization_id))
+    error_message = "The Upwind organization ID must start with 'org_' followed by alphanumeric characters."
+  }
+}
+
+variable "scanner_id" {
+  type        = string
+  description = "The Upwind Scanner ID."
+
+  validation {
+    condition     = can(regex("^ucsc-[a-zA-Z0-9]{1,}$", var.scanner_id))
+    error_message = "The Upwind scanner ID must start with 'ucsc-' followed by alphanumeric characters."
+  }
+}
+
+variable "public_uri_domain" {
+  type        = string
+  description = "The public URI domain."
+  default     = "upwind.io"
+
+  validation {
+    condition     = contains(["upwind.io", "upwind.dev"], var.public_uri_domain)
+    error_message = "The public_uri_domain must be either 'upwind.io' or 'upwind.dev'."
+  }
+}
+
+variable "scaler_function_schedule" {
+  type        = string
+  description = "The schedule to use for the scaler function."
+  default     = "*/10 * * * *" # Every 10 minutes
+}
+
+### Google Cloud Related
+
+variable "cloudscanner_sa_email" {
+  type        = string
+  description = "The cloudscanner service account email to use."
+
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9-]+@[a-zA-Z0-9-]+\\.iam\\.gserviceaccount\\.com$", var.cloudscanner_sa_email))
+    error_message = "Invalid Google service account email format. Must be in the format: name@project-id.iam.gserviceaccount.com"
+  }
+}
+
+variable "cloudscanner_scaler_sa_email" {
+  type        = string
+  description = "The cloudscanner scaler service account email to use."
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9-]+@[a-zA-Z0-9-]+\\.iam\\.gserviceaccount\\.com$", var.cloudscanner_scaler_sa_email))
+    error_message = "Invalid Google service account email format. Must be in the format: name@project-id.iam.gserviceaccount.com"
+  }
+}
+
+variable "upwind_orchestrator_project" {
+  type        = string
+  description = "The main Google Cloud project where the resources are created."
+
+  validation {
+    condition     = can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]$", var.upwind_orchestrator_project))
+    error_message = "The Upwind orchestrator project ID must be 6-30 characters, lowercase letters, numbers or hyphens, must start with a letter, and cannot end with a hyphen."
+  }
+}
+
+variable "region" {
+  type        = string
+  description = "The region that all resources will be created in."
+  default     = "us-central1"
+
+  validation {
+    condition     = can(regex("^[a-z]+-[a-z]+[0-9]$", var.region))
+    error_message = "The region must be a valid Google Cloud region (e.g., us-central1, europe-west4)."
+  }
+}
+
+variable "availability_zones" {
+  type        = list(any)
+  description = "The zones within the region that will be used for zone based resources."
+  default     = ["us-central1-a", "us-central1-b", "us-central1-c"]
+
+  validation {
+    condition     = length(var.availability_zones) > 0
+    error_message = "At least one availability zone must be specified."
+  }
+
+  validation {
+    condition     = alltrue([for zone in var.availability_zones : can(regex("^[a-z]+-[a-z]+[0-9]-[a-z]$", zone))])
+    error_message = "All availability zones must be valid Google Cloud zones (e.g., us-central1-a)."
+  }
+
+  validation {
+    condition     = length(var.availability_zones) == length(distinct(var.availability_zones))
+    error_message = "All availability zones must be unique."
+  }
+}
+
+### Instance Group Related
+
+variable "machine_type" {
+  type        = string
+  description = "The machine type to use."
+  default     = "e2-highmem-2"
+}
+
+variable "boot_image" {
+  type        = string
+  description = "The source image to use for instances."
+  default     = "ubuntu-os-cloud/ubuntu-2404-lts-amd64"
+}
+
+variable "boot_disk_size_gb" {
+  type        = number
+  description = "The disk size in GB to use."
+  default     = 20
+}
+
+variable "boot_disk_type" {
+  type        = string
+  description = "The disk type to use."
+  default     = "pd-standard"
+}
+
+variable "target_size" {
+  type        = number
+  description = "The target size of the autoscaling group."
+  default     = 1
+}
+
+### Network related
+
+variable "custom_network" {
+  description = "The name of a custom network to use."
+  type        = string
+  default     = ""
+}
+
+variable "custom_subnet" {
+  description = "The name of a custom subnetwork to use."
+  type        = string
+  default     = ""
+}
+
+variable "enable_iap_ssh" {
+  description = "Whether to enable SSH access via IAP"
+  type        = bool
+  default     = true
+}
+
+variable "min_nat_ports_per_vm" {
+  description = "Minimum number of ports allocated to each VM for NAT service"
+  type        = number
+  default     = 64
+}
