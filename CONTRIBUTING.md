@@ -278,14 +278,25 @@ When creating a pull request, please include:
 
 ## Release Process
 
-This project uses automated releases with semantic versioning:
+This project uses automated releases with semantic versioning, powered by [semantic-release](https://semantic-release.gitbook.io/semantic-release/):
 
-1. **Version Calculation**: Based on conventional commits
-2. **Changelog Generation**: Automatically generated from commit messages
-3. **Git Tagging**: Automatically tagged with version numbers
-4. **Release Notes**: Generated from changelog
+1. **Conventional Commits**: Ensure all commits follow the [Conventional Commits](https://www.conventionalcommits.org/) format.
+2. **Pull Request to `main`**: Open a pull request with your changes targeting the `main` branch.
+3. **Merge the Pull Request**: Once your pull request is approved and merged, the release workflow will automatically run.
+4. **Automated Release**: If your commits warrant a new release (according to semantic versioning rules), a new release
+   will be created, a tag will be pushed, and release notes will be generated.
+5. **Release Branch and Pull Request**: After a successful release, the workflow will automatically create a release
+   branch (e.g., `release-x.y.z`) and open a pull request with the release changes (such as updated changelog and
+   version bump). Review and merge this pull request to keep your main branch up to date with release artifacts.
 
-Releases are triggered automatically when commits are merged to `main`.
+**Note:**
+
+- Releases are only triggered when a pull request is merged to `main`.
+- No release will be published for pull requests that are closed without merging.
+- After a release, a new release branch and pull request will be created automatically for release-related
+  changes.
+
+For more details, see `.github/workflows/release.yml`.
 
 ### Workflow Files
 
@@ -297,7 +308,7 @@ Releases are triggered automatically when commits are merged to `main`.
 
 The project includes GitHub Actions workflows for:
 
-- **PR Validation**: Runs tests on pull requests
+- **Pull Request Validation**: Runs tests on pull requests
 - **Release Management**: Automates semantic versioning and releases
 - **Documentation**: Updates module documentation
 - **Security Scanning**: Regular security vulnerability checks

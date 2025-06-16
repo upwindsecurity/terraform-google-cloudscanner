@@ -13,13 +13,14 @@ repos:
         args: ['--autofix']
 
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.99.3
+    rev: v1.99.4
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
       - id: terraform_docs
         args:
           - --hook-config=--config-file=.config/.terraform-docs.yml
+          - --hook-config=--fail-on-diff=true
       - id: terraform_tflint
         args:
           - --args=--only=terraform_deprecated_interpolation
