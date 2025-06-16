@@ -20,37 +20,23 @@ env:
   TFLINT_VERSION: v0.48.0
   TRIVY_VERSION: v0.63.0
 
+permissions:
+  contents: read         # Required for checkout and reading repository content
+  security-events: write # Required for CodeQL to upload security scan results
+  actions: read          # Required for CodeQL to read workflow files
+
 jobs:
-  discover-modules:
-    name: Discover Modules and Examples
-    runs-on: ubuntu-latest
-    outputs:
-      modules: ${{ steps.set-matrix.outputs.modules }}
-      examples: ${{ steps.set-matrix.outputs.examples }}
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Discover modules and examples
-      id: set-matrix
-      run: |
-        # Discover modules
-        modules=$(find modules -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | jq -R -s -c 'split("\n")[:-1]')
-        echo "modules=$modules" >> $GITHUB_OUTPUT
-        echo "Discovered modules: $modules"
-
-        # Discover examples
-        examples=$(find examples -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | jq -R -s -c 'split("\n")[:-1]')
-        echo "examples=$examples" >> $GITHUB_OUTPUT
-        echo "Discovered examples: $examples"
+  discover-modules-examples:
+    name: Discover
+    uses: ./.github/workflows/discover.yml
 
   terraform-checks:
     name: Terraform Checks (${{ matrix.module }})
     runs-on: ubuntu-latest
-    needs: discover-modules
+    needs: discover-modules-examples
     strategy:
       matrix:
-        module: ${{ fromJson(needs.discover-modules.outputs.modules) }}
+        module: ${{ fromJson(needs.discover-modules-examples.outputs.modules) }}
 
     steps:
     - name: Checkout
@@ -61,30 +47,30 @@ jobs:
       with:
         terraform_version: ${{ env.TERRAFORM_VERSION }}
 
-    - name: Terraform Format Check
+    - name: Check Terraform Format
       run: terraform fmt -check -recursive modules/
 
-    - name: Terraform Init
+    - name: Run Terraform Init
       run: terraform init
       working-directory: modules/${{ matrix.module }}
 
-    - name: Terraform Validate
+    - name: Run Terraform Validate
       run: terraform validate
       working-directory: modules/${{ matrix.module }}
 
-  tflint:
-    name: TFLint (${{ matrix.module }})
+  terraform-tflint:
+    name: Terraform Lint (${{ matrix.module }})
     runs-on: ubuntu-latest
-    needs: discover-modules
+    needs: discover-modules-examples
     strategy:
       matrix:
-        module: ${{ fromJson(needs.discover-modules.outputs.modules) }}
+        module: ${{ fromJson(needs.discover-modules-examples.outputs.modules) }}
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Cache TFLint plugin dir
+    - name: Cache TFLint Plugin Directory
       uses: actions/cache@v3
       with:
         path: ~/.tflint.d/plugins
@@ -95,10 +81,10 @@ jobs:
       with:
         tflint_version: ${{ env.TFLINT_VERSION }}
 
-    - name: Show TFLint version
+    - name: Show TFLint Version
       run: tflint --version
 
-    - name: Init TFLint
+    - name: Initialize TFLint
       run: tflint --init --config .config/.tflint.hcl
 
     - name: Run TFLint
@@ -106,14 +92,15 @@ jobs:
       working-directory: modules/${{ matrix.module }}
 
   trivy:
-    name: Trivy Security Scan
+    name: Security Scan
     runs-on: ubuntu-latest
+    if: github.event.repository.private == false
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Run Trivy vulnerability scanner
+    - name: Run Trivy Security Scanner
       uses: aquasecurity/trivy-action@0.31.0
       with:
         version: ${{ env.TRIVY_VERSION }}
@@ -123,47 +110,59 @@ jobs:
         output: 'trivy-results.sarif'
         exit-code: '0'
 
-    - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v2
-      if: always()
+    - name: Upload Security Scan Results
+      uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: 'trivy-results.sarif'
+        wait-for-processing: true
 
-  docs:
-    name: Generate Documentation (${{ matrix.module }})
+  terraform-docs:
+    name: Terraform Docs (${{ matrix.module }})
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    needs: discover-modules
+    needs: discover-modules-examples
     strategy:
       matrix:
-        module: ${{ fromJson(needs.discover-modules.outputs.modules) }}
+        module: ${{ fromJson(needs.discover-modules-examples.outputs.modules) }}
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        ref: ${{ github.event.pull_request.head.ref }}
-        token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Render terraform docs and push changes back to PR
-      uses: terraform-docs/gh-actions@v1.0.0
+    - name: Run Terraform Docs
+      uses: terraform-docs/gh-actions@v1.4.1
       with:
         working-dir: modules/${{ matrix.module }}
         config-file: ../../.config/.terraform-docs.yml
         output-file: README.md
-        git-push: "true"
+        fail-on-diff: "false"
+        template: ""
+
+    - name: Check For Changes
+      run: |
+        if [[ -n $(git diff --name-only modules/${{ matrix.module }}/README.md) ]]; then
+          echo "::error::Terraform docs are out of sync!"
+          echo "::group::Diff output"
+          git diff modules/${{ matrix.module }}/README.md
+          echo "::endgroup::"
+          echo ""
+          echo "To fix this, run: make docs"
+          exit 1
+        else
+          echo "Terraform docs are up to date"
+        fi
 
   examples:
     name: Test Examples (${{ matrix.example }})
     runs-on: ubuntu-latest
-    needs: discover-modules
+    needs: discover-modules-examples
     if: |
       github.event.inputs.test_examples == 'true' ||
       (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'test-examples')) ||
       (github.event_name == 'push' && contains(github.event.head_commit.message, '[test-examples]'))
     strategy:
       matrix:
-        example: ${{ fromJson(needs.discover-modules.outputs.examples) }}
+        example: ${{ fromJson(needs.discover-modules-examples.outputs.examples) }}
 
     steps:
     - name: Checkout
@@ -174,14 +173,14 @@ jobs:
       with:
         terraform_version: ${{ env.TERRAFORM_VERSION }}
 
-    - name: Terraform Init
+    - name: Run Terraform Init
       run: terraform init
       working-directory: examples/${{ matrix.example }}
 
-    - name: Terraform Validate
+    - name: Run Terraform Validate
       run: terraform validate
       working-directory: examples/${{ matrix.example }}
 
-    - name: Terraform Plan
+    - name: Run Terraform Plan
       run: terraform plan
       working-directory: examples/${{ matrix.example }}
