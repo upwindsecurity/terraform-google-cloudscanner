@@ -40,6 +40,12 @@ variable "scaler_function_schedule" {
 
 ### Google Cloud Related
 
+variable "access_token" {
+  description = "The access token used to authenticate with Google Cloud."
+  type        = string
+  sensitive   = true
+}
+
 variable "cloudscanner_sa_email" {
   type        = string
   description = "The cloudscanner service account email to use."
