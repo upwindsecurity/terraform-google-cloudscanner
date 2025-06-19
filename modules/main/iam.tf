@@ -9,11 +9,11 @@ data "google_service_account" "cloudscanner_scaler_sa" {
 }
 
 locals {
-  cloudscanner_storage_delete_role                  = format("projects/%s/roles/Cloud ScannerStorageDeleteRole_%s", local.project, local.resource_suffix_underscore)
+  cloudscanner_storage_delete_role                  = format("projects/%s/roles/CloudScannerStorageDeleteRole_%s", local.project, local.resource_suffix_underscore)
   cloudscanner_snapshot_reader_role                 = format("projects/%s/roles/CloudScannerSnapshotReader_%s", local.project, local.resource_suffix_underscore)
   cloudscanner_snapshot_writer_role                 = format("projects/%s/roles/CloudScannerSnapshotWriter_%s", local.project, local.resource_suffix_underscore)
-  cloudscanner_instance_template_mgmt_role          = format("projects/%s/roles/Cloud ScannerInstTmplMgmtRole_%s", local.project, local.resource_suffix_underscore)
-  cloudscanner_instance_template_test_creation_role = format("projects/%s/roles/Cloud ScannerInstTmplTestCreationRole_%s", local.project, local.resource_suffix_underscore)
+  cloudscanner_instance_template_mgmt_role          = format("projects/%s/roles/CloudScannerInstTmplMgmtRole_%s", local.project, local.resource_suffix_underscore)
+  cloudscanner_instance_template_test_creation_role = format("projects/%s/roles/CloudScannerInstTmplTestCreationRole_%s", local.project, local.resource_suffix_underscore)
 }
 
 resource "google_project_iam_member" "cloudscanner_storage_delete_role_member" {
@@ -52,7 +52,7 @@ resource "google_project_iam_member" "cloudscanner_snapshot_writer_role_member" 
   member  = "serviceAccount:${local.cloudscanner_sa.email}"
   condition {
     # Limit storage deletion permissions to snapshots and disks we generate only
-    title      = "Upwind CloudScanner Snapshot Writer"
+    title      = "Upwind Cloud Scanner Snapshot Writer"
     expression = "resource.name.endsWith('${var.scanner_id}')"
   }
 }
@@ -69,7 +69,7 @@ resource "google_project_iam_member" "cloudscanner_scaler_snapshot_writer_role_m
   member  = "serviceAccount:${local.cloudscanner_scaler_sa.email}"
   condition {
     # Limit storage deletion permissions to snapshots and disks we generate only
-    title      = "Upwind CloudScanner Scaler Snapshot Writer"
+    title      = "Upwind Cloud Scanner Scaler Snapshot Writer"
     expression = "resource.name.endsWith('${var.scanner_id}')"
   }
 }

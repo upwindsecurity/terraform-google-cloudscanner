@@ -64,6 +64,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_access_token"></a> [access\_token](#input\_access\_token) | The access token used to authenticate with Google Cloud. | `string` | | no |
 | <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | The zones within the region that will be used for zone based resources. | `list(any)` | <pre>[<br/>  "us-central1-a",<br/>  "us-central1-b",<br/>  "us-central1-c"<br/>]</pre> | no |
 | <a name="input_boot_disk_size_gb"></a> [boot\_disk\_size\_gb](#input\_boot\_disk\_size\_gb) | The disk size in GB to use. | `number` | `20` | no |
 | <a name="input_boot_disk_type"></a> [boot\_disk\_type](#input\_boot\_disk\_type) | The disk type to use. | `string` | `"pd-standard"` | no |

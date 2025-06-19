@@ -31,7 +31,8 @@ locals {
 }
 
 provider "google" {
-  project = local.project
+  project      = local.project
+  access_token = var.access_token
 }
 
 resource "null_resource" "always_run" {
@@ -50,7 +51,7 @@ resource "google_compute_region_instance_template" "cloudscanner_inst_templates"
   machine_type = var.machine_type
   region       = var.region
 
-  # Label is used for IsNotCloud ScannerInstance
+  # Label is used for IsNotCloudScannerInstance
   labels = {
     upwind-component = "cloudscanner"
   }
@@ -65,9 +66,9 @@ resource "google_compute_region_instance_template" "cloudscanner_inst_templates"
     echo "Getting upwind credentials from Secret Manager for ${var.scanner_id}..."
     export UPWIND_CLIENT_ID=$(gcloud secrets versions access latest --secret=${data.google_secret_manager_secret.scanner_client_id.secret_id})
     export UPWIND_CLIENT_SECRET=$(gcloud secrets versions access latest --secret=${data.google_secret_manager_secret.scanner_client_secret.secret_id})
-    export GOOGLE_CLOUD_REGION=${var.region}
-    export GOOGLE_CLOUD_CLOUDSCANNER_SA_EMAIL=${local.cloudscanner_sa.email}
-    export GOOGLE_CLOUD_CLOUDSCANNER_SCALER_SA_EMAIL=${local.cloudscanner_scaler_sa.email}
+    export GCP_REGION=${var.region}
+    export GCP_CLOUDSCANNER_SA_EMAIL=${local.cloudscanner_sa.email}
+    export GCP_CLOUDSCANNER_SCALER_SA_EMAIL=${local.cloudscanner_scaler_sa.email}
 
     export UPWIND_CLOUDSCANNER_ID=${var.scanner_id}
 
@@ -176,12 +177,12 @@ resource "google_cloud_run_v2_job" "scaler_function" {
         }
 
         env {
-          name  = "GOOGLE_CLOUD_PROJECT_ID"
+          name  = "GCP_PROJECT_ID"
           value = local.project
         }
 
         env {
-          name  = "GOOGLE_CLOUD_MIG_REGION"
+          name  = "GCP_MIG_REGION"
           value = google_compute_region_instance_group_manager.cloudscanner.region
         }
 
