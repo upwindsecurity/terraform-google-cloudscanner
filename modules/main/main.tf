@@ -15,9 +15,8 @@ locals {
   # Check if there are at least 4 parts (meaning we have the optional suffix)
   has_suffix = length(local.parts) >= 4
   # Extract the last part before the @ if it exists, otherwise empty string
-  custom_suffix              = local.has_suffix ? local.parts[length(local.parts) - 1] : ""
-  resource_suffix_underscore = format("%s%s", local.org_id_truncated, local.custom_suffix == "" ? "" : "_${local.custom_suffix}")
-  resource_suffix_hyphen     = format("%s%s", local.org_id_truncated, local.custom_suffix == "" ? "" : "-${local.custom_suffix}")
+  custom_suffix          = local.has_suffix ? local.parts[length(local.parts) - 1] : ""
+  resource_suffix_hyphen = format("%s%s", local.org_id_truncated, local.custom_suffix == "" ? "" : "-${local.custom_suffix}")
 
   # The main service account for the Cloud Scanner
   cloudscanner_sa = data.google_service_account.cloudscanner_sa
