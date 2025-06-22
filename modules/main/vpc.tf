@@ -55,7 +55,9 @@ resource "google_compute_router_nat" "cloudscanner_router_nat" {
 }
 
 resource "google_compute_firewall" "cloudscanner_fw_iap_ssh" {
-  count     = var.enable_iap_ssh ? 1 : 0
+  # Only create this firewall rule if IAP SSH is enabled and we aren't using a custom network
+  # Manage firewall rules for custom networks independently
+  count     = var.enable_iap_ssh && var.custom_network == "" ? 1 : 0
   project   = local.project
   name      = "upwind-fw-${var.scanner_id}-iap-ssh"
   network   = local.network
