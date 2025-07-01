@@ -38,6 +38,17 @@ variable "scaler_function_schedule" {
   default     = "*/10 * * * *" # Every 10 minutes
 }
 
+variable "upwind_infra_region" {
+  type        = string
+  description = "The Upwind infrastructure region where the resources are created."
+  default     = "us"
+
+  validation {
+    condition     = can(regex("^(us|eu)$", var.upwind_infra_region))
+    error_message = "The Upwind infrastructure region must be one of 'us' or 'eu'"
+  }
+}
+
 ### Google Cloud Related
 
 variable "access_token" {

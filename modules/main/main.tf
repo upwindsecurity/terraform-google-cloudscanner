@@ -65,6 +65,7 @@ resource "google_compute_region_instance_template" "cloudscanner_inst_templates"
     echo "Getting upwind credentials from Secret Manager for ${var.scanner_id}..."
     export UPWIND_CLIENT_ID=$(gcloud secrets versions access latest --secret=${data.google_secret_manager_secret.scanner_client_id.secret_id})
     export UPWIND_CLIENT_SECRET=$(gcloud secrets versions access latest --secret=${data.google_secret_manager_secret.scanner_client_secret.secret_id})
+    export UPWIND_INFRA_REGION=${var.upwind_infra_region}
     export GCP_REGION=${var.region}
     export GCP_CLOUDSCANNER_SA_EMAIL=${local.cloudscanner_sa.email}
     export GCP_CLOUDSCANNER_SCALER_SA_EMAIL=${local.cloudscanner_scaler_sa.email}
@@ -188,6 +189,11 @@ resource "google_cloud_run_v2_job" "scaler_function" {
         env {
           name  = "UPWIND_IO"
           value = var.public_uri_domain
+        }
+
+        env {
+          name  = "UPWIND_INFRA_REGION"
+          value = var.upwind_infra_region
         }
 
         env {
