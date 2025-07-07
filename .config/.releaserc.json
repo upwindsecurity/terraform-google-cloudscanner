@@ -16,10 +16,6 @@
         "preset": "conventionalcommits",
         "releaseRules": [
           {
-            "release": "patch",
-            "type": "chore"
-          },
-          {
             "release": "minor",
             "type": "feat"
           },
