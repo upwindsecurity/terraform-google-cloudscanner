@@ -118,6 +118,48 @@ variable "availability_zones" {
   }
 }
 
+### Scheduler related
+locals {
+  # Supported Scheduler regions, see https://cloud.google.com/scheduler/docs/locations
+  valid_scheduler_regions = [
+    # Americas
+    "northamerica-northeast1", "southamerica-east1",
+    "us-central1", "us-east1", "us-east4", "us-west1", "us-west2", "us-west3", "us-west4",
+
+    # Europe
+    "europe-central2", "europe-west1", "europe-west2", "europe-west3", "europe-west6",
+
+    # Asia Pacific
+    "asia-east1", "asia-east2", "asia-northeast1", "asia-northeast2", "asia-northeast3",
+    "asia-south1", "asia-southeast1", "asia-southeast2",
+
+    # Australia
+    "australia-southeast1"
+  ]
+}
+
+variable "default_scheduler_region" {
+  type        = string
+  description = "The default region to use for the Cloud Scheduler job if no specific region is provided."
+  default     = "us-central1"
+
+  validation {
+    condition     = contains(local.valid_scheduler_regions, var.default_scheduler_region)
+    error_message = "The default scheduler region must be a valid Cloud Scheduler region. Supported regions: ${join(", ", local.valid_scheduler_regions)}."
+  }
+}
+
+variable "scheduler_region" {
+  type        = string
+  description = "The region to use for the Cloud Scheduler job. If not set, the default_scheduler_region will be used."
+  default     = ""
+
+  validation {
+    condition     = var.scheduler_region == "" || contains(local.valid_scheduler_regions, var.scheduler_region)
+    error_message = "The scheduler region must be a valid Cloud Scheduler region. Supported regions: ${join(", ", local.valid_scheduler_regions)}, or leave empty to use default."
+  }
+}
+
 ### Instance Group Related
 
 variable "machine_type" {
