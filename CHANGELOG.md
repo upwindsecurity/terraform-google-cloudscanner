@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.3.0](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.2.0...v1.3.0) (2025-09-30)
+
+### Features
+
+* **AG-3750:** add default labels and labels variables ([#18](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/18)) ([7d4b2d4](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/7d4b2d4cc6b1a575919107b69cf0fe78edc19cd2))
+
 ## [1.2.0](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.1.5...v1.2.0) (2025-09-15)
 
 ### Features
