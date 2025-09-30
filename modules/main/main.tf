@@ -148,9 +148,10 @@ resource "google_compute_region_instance_group_manager" "cloudscanner" {
   }
 
   all_instances_config {
-    labels = {
-      name = "upwind-cs-asg-${var.scanner_id}"
-    }
+    labels = merge(local.merged_labels, {
+      upwind_component = "cloudscanner"
+      name             = "upwind-cs-asg-${var.scanner_id}"
+    })
   }
 
   # Setting the initial target size. The number of VMs to be created when the instance group is created.
