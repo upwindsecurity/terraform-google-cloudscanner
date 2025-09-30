@@ -27,11 +27,15 @@ locals {
   subnet = var.custom_network != "" ? (
     var.custom_subnet != "" ? data.google_compute_subnetwork.custom_subnet[0].self_link : ""
   ) : google_compute_subnetwork.cloudscanner_subnetwork[0].self_link
+  # Merge default labels with user-provided labels
+  # User labels override defaults if keys conflict
+  merged_labels = merge(var.default_labels, var.labels)
 }
 
 provider "google" {
-  project      = local.project
-  access_token = var.access_token
+  project        = local.project
+  access_token   = var.access_token
+  default_labels = local.merged_labels
 }
 
 resource "null_resource" "always_run" {

@@ -217,3 +217,33 @@ variable "min_nat_ports_per_vm" {
   type        = number
   default     = 64
 }
+
+variable "labels" {
+  description = "A map of labels to apply to all resources"
+  type        = map(string)
+  default     = {}
+
+  validation {
+    condition = alltrue([
+      for k, v in var.labels :
+      can(regex("^[a-z0-9_-]{1,63}$", k)) && can(regex("^[a-z0-9_-]{0,63}$", v))
+    ])
+    error_message = "Invalid labels found: ${join(", ", [for k, v in var.labels : !can(regex("^[a-z0-9_-]{1,63}$", k)) || !can(regex("^[a-z0-9_-]{0,63}$", v)) ? "'${k}=${v}'" : ""])}. Label keys must be 1-63 characters and label values must be 0-63 characters of lowercase letters, numbers, underscores, or hyphens."
+  }
+}
+
+variable "default_labels" {
+  description = "Default labels applied to all resources (can be overridden)"
+  type        = map(string)
+  default = {
+    managed_by = "terraform"
+    component  = "upwind"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.default_labels :
+      can(regex("^[a-z0-9_-]{1,63}$", k)) && can(regex("^[a-z0-9_-]{0,63}$", v))
+    ])
+    error_message = "Invalid default labels found: ${join(", ", [for k, v in var.default_labels : !can(regex("^[a-z0-9_-]{1,63}$", k)) || !can(regex("^[a-z0-9_-]{0,63}$", v)) ? "'${k}=${v}'" : ""])}. Label keys must be 1-63 characters and label values must be 0-63 characters of lowercase letters, numbers, underscores, or hyphens."
+  }
+}
