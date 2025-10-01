@@ -92,7 +92,7 @@ variable "region" {
   default     = "us-central1"
 
   validation {
-    condition     = can(regex("^[a-z]+-[a-z]+[0-9]$", var.region))
+    condition     = can(regex("^[a-z]+-[a-z]+[0-9]+$", var.region))
     error_message = "The region must be a valid Google Cloud region (e.g., us-central1, europe-west4)."
   }
 }
@@ -108,7 +108,7 @@ variable "availability_zones" {
   }
 
   validation {
-    condition     = alltrue([for zone in var.availability_zones : can(regex("^[a-z]+-[a-z]+[0-9]-[a-z]$", zone))])
+    condition     = alltrue([for zone in var.availability_zones : can(regex("^[a-z]+-[a-z]+[0-9]+-[a-z]$", zone))])
     error_message = "All availability zones must be valid Google Cloud zones (e.g., us-central1-a)."
   }
 
