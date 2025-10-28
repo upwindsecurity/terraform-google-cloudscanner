@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.5.0](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.4.0...v1.5.0) (2025-10-28)
+
+### Features
+
+* **AG-0:** trigger release ([#26](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/26)) ([183cd7a](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/183cd7a0b08d9434172919b32353cb6c964959da))
+
+### Bug Fixes
+
+* **AG-0:** trigger release ([#25](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/25)) ([524264d](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/524264d982520771fa20b76f873fdcb933a55dc7))
+* **AG-3818:** allow regions with more than one number ([#22](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/22)) ([eac131f](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/eac131f7fee4282f4cefed43841eca3e850a10e7))
+* **AG-3966:** add ME region to validation check ([#23](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/23)) ([6a1eb01](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/6a1eb01a71604e09ba428dc3fc42c6c5fb7dc098))
+
 ## [1.4.0](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.3.0...v1.4.0) (2025-10-01)
 
 ### Features
