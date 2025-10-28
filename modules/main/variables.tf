@@ -44,8 +44,8 @@ variable "upwind_infra_region" {
   default     = "us"
 
   validation {
-    condition     = can(regex("^(us|eu)$", var.upwind_infra_region))
-    error_message = "The Upwind infrastructure region must be one of 'us' or 'eu'"
+    condition     = can(regex("^(us|eu|me)$", var.upwind_infra_region))
+    error_message = "The Upwind infrastructure region must be one of 'us', 'eu', or 'me'"
   }
 }
 
