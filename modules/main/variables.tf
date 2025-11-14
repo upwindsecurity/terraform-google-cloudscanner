@@ -177,7 +177,7 @@ variable "boot_image" {
 variable "boot_disk_size_gb" {
   type        = number
   description = "The disk size in GB to use."
-  default     = 20
+  default     = 40
 }
 
 variable "boot_disk_type" {
