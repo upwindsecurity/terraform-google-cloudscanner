@@ -1,5 +1,4 @@
 ### Upwind Related
-# Test comment for terraform-docs regeneration
 
 variable "upwind_organization_id" {
   type        = string
