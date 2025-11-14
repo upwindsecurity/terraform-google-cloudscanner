@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.5.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.5.0...v1.5.1) (2025-11-14)
+
+### Bug Fixes
+
+* **AG-0:** tidy up comment ([#31](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/31)) ([439446b](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/439446b0a46d4e964cc644120da145e1b693393b))
+
 ## [1.5.0](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.4.0...v1.5.0) (2025-10-28)
 
 ### Features
