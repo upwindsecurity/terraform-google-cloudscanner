@@ -24,3 +24,10 @@ variable "upwind_orchestrator_project" {
   type        = string
   description = "The main Google Cloud project where the resources are created"
 }
+
+variable "access_token" {
+  type        = string
+  description = "The access token used to authenticate with Google Cloud"
+  sensitive   = true
+  default     = "" # Empty default for testing - should be provided via TF_VAR_access_token in real usage
+}

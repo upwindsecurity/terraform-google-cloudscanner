@@ -64,24 +64,122 @@ resource "google_compute_region_instance_template" "cloudscanner_inst_templates"
 
   metadata_startup_script = <<-EOF
     #!/bin/bash
+    set -e
+    set -o pipefail
+
+    # Log file for debugging
+    LOGFILE="/var/log/cloudscanner-startup.log"
+    mkdir -p /var/log
+
+    # Redirect all output to both log file and serial console
+    # Use tee to write to both, and don't fail if serial console is unavailable
+    exec > >(tee -a "$LOGFILE" | (cat >> /dev/ttyS0 2>/dev/null || cat))
+    exec 2>&1
+
+    echo "=== Starting Cloud Scanner installation for ${var.scanner_id} ==="
+    echo "Timestamp: $(date)"
+    echo "Log file: $LOGFILE"
 
     # Retrieve credentials from Secret Manager
     echo "Getting upwind credentials from Secret Manager for ${var.scanner_id}..."
-    export UPWIND_CLIENT_ID=$(gcloud secrets versions access latest --secret=${data.google_secret_manager_secret.scanner_client_id.secret_id})
-    export UPWIND_CLIENT_SECRET=$(gcloud secrets versions access latest --secret=${data.google_secret_manager_secret.scanner_client_secret.secret_id})
+    echo "Secret ID for client_id: ${data.google_secret_manager_secret.scanner_client_id.secret_id}"
+    echo "Secret ID for client_secret: ${data.google_secret_manager_secret.scanner_client_secret.secret_id}"
+    echo "Project: ${local.project}"
+    
+    # Check if gcloud is available
+    if ! command -v gcloud &> /dev/null; then
+      echo "ERROR: gcloud command not found"
+      exit 1
+    fi
+    
+    # Get client ID with error checking
+    echo "Attempting to retrieve UPWIND_CLIENT_ID..."
+    if ! CLIENT_ID_OUTPUT=$(timeout 30 gcloud secrets versions access latest --secret=${data.google_secret_manager_secret.scanner_client_id.secret_id} --project=${local.project} 2>&1); then
+      echo "ERROR: Failed to retrieve UPWIND_CLIENT_ID from Secret Manager"
+      echo "Error output: $CLIENT_ID_OUTPUT"
+      exit 1
+    fi
+    UPWIND_CLIENT_ID="$CLIENT_ID_OUTPUT"
+    if [ -z "$UPWIND_CLIENT_ID" ]; then
+      echo "ERROR: UPWIND_CLIENT_ID is empty after retrieval"
+      exit 1
+    fi
+    export UPWIND_CLIENT_ID
+    echo "Successfully retrieved UPWIND_CLIENT_ID (length: $${#UPWIND_CLIENT_ID})"
+    
+    # Get client secret with error checking
+    echo "Attempting to retrieve UPWIND_CLIENT_SECRET..."
+    if ! CLIENT_SECRET_OUTPUT=$(timeout 30 gcloud secrets versions access latest --secret=${data.google_secret_manager_secret.scanner_client_secret.secret_id} --project=${local.project} 2>&1); then
+      echo "ERROR: Failed to retrieve UPWIND_CLIENT_SECRET from Secret Manager"
+      echo "Error output: $CLIENT_SECRET_OUTPUT"
+      exit 1
+    fi
+    UPWIND_CLIENT_SECRET="$CLIENT_SECRET_OUTPUT"
+    if [ -z "$UPWIND_CLIENT_SECRET" ]; then
+      echo "ERROR: UPWIND_CLIENT_SECRET is empty after retrieval"
+      exit 1
+    fi
+    export UPWIND_CLIENT_SECRET
+    echo "Successfully retrieved UPWIND_CLIENT_SECRET (length: $${#UPWIND_CLIENT_SECRET})"
+    
     export UPWIND_INFRA_REGION=${var.upwind_infra_region}
     export GCP_REGION=${var.region}
     export GCP_CLOUDSCANNER_SA_EMAIL=${local.cloudscanner_sa.email}
     export GCP_CLOUDSCANNER_SCALER_SA_EMAIL=${local.cloudscanner_scaler_sa.email}
-
     export UPWIND_CLOUDSCANNER_ID=${var.scanner_id}
+    
+    # Write credentials to file for systemd service (matching regular ASG behavior)
+    echo "Writing credentials to /etc/cloudscanner.env for systemd service..."
+    mkdir -p /etc
+    cat > /etc/cloudscanner.env <<-ENVEOF
+UPWIND_CLIENT_ID=$UPWIND_CLIENT_ID
+UPWIND_CLIENT_SECRET=$UPWIND_CLIENT_SECRET
+UPWIND_INFRA_REGION=$UPWIND_INFRA_REGION
+GCP_REGION=$GCP_REGION
+GCP_CLOUDSCANNER_SA_EMAIL=$GCP_CLOUDSCANNER_SA_EMAIL
+GCP_CLOUDSCANNER_SCALER_SA_EMAIL=$GCP_CLOUDSCANNER_SCALER_SA_EMAIL
+UPWIND_CLOUDSCANNER_ID=$UPWIND_CLOUDSCANNER_ID
+ENVEOF
+    chmod 600 /etc/cloudscanner.env
+    echo "Credentials written to /etc/cloudscanner.env"
+    
+    echo "Environment variables set:"
+    echo "  UPWIND_INFRA_REGION=$UPWIND_INFRA_REGION"
+    echo "  GCP_REGION=$GCP_REGION"
+    echo "  UPWIND_CLOUDSCANNER_ID=$UPWIND_CLOUDSCANNER_ID"
 
     echo "Getting Cloud Scanner install script for ${var.scanner_id} ..."
-    curl -L https://get.${var.public_uri_domain}/cloudscanner.sh -O
+    if ! curl -f -L https://get.${var.public_uri_domain}/cloudscanner.sh -o cloudscanner.sh; then
+      echo "ERROR: Failed to download install script"
+      exit 1
+    fi
+    
     chmod +x cloudscanner.sh
     echo "Executing Cloud Scanner install for ${var.scanner_id}..."
-    UPWIND_IO=${var.public_uri_domain} bash ./cloudscanner.sh
-    echo "Cloud Scanner install finished for ${var.scanner_id}..."
+    if ! UPWIND_IO=${var.public_uri_domain} bash ./cloudscanner.sh; then
+      echo "ERROR: Cloud Scanner install failed with exit code $?"
+      exit 1
+    fi
+    
+    echo "Cloud Scanner install finished successfully for ${var.scanner_id}..."
+    echo "Verifying systemd service exists..."
+    if systemctl list-units --all --type service --no-legend | grep -qF "upwind-cloudscanner"; then
+      echo "SUCCESS: upwind-cloudscanner service found"
+      systemctl status upwind-cloudscanner --no-pager || true
+      echo "Service status check complete"
+    else
+      echo "WARNING: upwind-cloudscanner service not found"
+      echo "Checking for service file..."
+      if [ -f /etc/systemd/system/upwind-cloudscanner.service ]; then
+        echo "Service file exists but service not loaded. Attempting daemon-reload..."
+        systemctl daemon-reload || true
+        systemctl list-units --all --type service --no-legend | grep -i cloudscanner || echo "Still not found after reload"
+      else
+        echo "Service file does not exist at /etc/systemd/system/upwind-cloudscanner.service"
+      fi
+    fi
+    echo "=== Installation complete ==="
+    echo "Startup log saved to: $LOGFILE"
   EOF
 
   metadata = {
@@ -156,6 +254,233 @@ resource "google_compute_region_instance_group_manager" "cloudscanner" {
 
   # Setting the initial target size. The number of VMs to be created when the instance group is created.
   target_size = var.target_size
+
+  lifecycle {
+    replace_triggered_by = [null_resource.always_run]
+  }
+}
+
+# DSPM Instance Templates
+# Create DSPM instance templates for Data Security Posture Management scanning
+# Similar to regular templates but using install_dspm instead of regular install
+resource "google_compute_region_instance_template" "cloudscanner_dspm_inst_templates" {
+  count        = var.dspm_max_size != "" ? 2 : 0
+  project      = local.project
+  name_prefix  = "upwind-tpl-dspm-${var.scanner_id}-"
+  machine_type = var.machine_type
+  region       = var.region
+
+  # Label is used for IsNotCloudScannerInstance
+  labels = {
+    upwind-component = "cloudscanner-dspm"
+  }
+
+  # add tags for SSH
+  tags = var.enable_iap_ssh ? ["ssh-enabled"] : []
+
+  metadata_startup_script = <<-EOF
+    #!/bin/bash
+    set -e
+    set -o pipefail
+
+    # Log file for debugging
+    LOGFILE="/var/log/cloudscanner-startup.log"
+    mkdir -p /var/log
+
+    # Redirect all output to both log file and serial console
+    # Use tee to write to both, and don't fail if serial console is unavailable
+    exec > >(tee -a "$LOGFILE" | (cat >> /dev/ttyS0 2>/dev/null || cat))
+    exec 2>&1
+
+    echo "=== Starting DSPM Cloud Scanner installation for ${var.scanner_id} ==="
+    echo "Timestamp: $(date)"
+    echo "Log file: $LOGFILE"
+
+    # Retrieve credentials from Secret Manager
+    echo "Getting upwind credentials from Secret Manager for ${var.scanner_id}..."
+    echo "Secret ID for client_id: ${data.google_secret_manager_secret.scanner_client_id.secret_id}"
+    echo "Secret ID for client_secret: ${data.google_secret_manager_secret.scanner_client_secret.secret_id}"
+    echo "Project: ${local.project}"
+    
+    # Check if gcloud is available
+    if ! command -v gcloud &> /dev/null; then
+      echo "ERROR: gcloud command not found"
+      exit 1
+    fi
+    
+    # Configure gcloud to use the instance's service account
+    echo "Configuring gcloud to use instance service account..."
+    gcloud config set account $(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/email" -H "Metadata-Flavor: Google") 2>&1 || true
+    gcloud config set project ${local.project} 2>&1 || true
+    
+    # Verify we can access the metadata server
+    echo "Verifying service account access..."
+    SA_EMAIL=$(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/email" -H "Metadata-Flavor: Google" 2>&1)
+    echo "Service account: $SA_EMAIL"
+    
+    # Get client ID with error checking
+    echo "Attempting to retrieve UPWIND_CLIENT_ID..."
+    if ! CLIENT_ID_OUTPUT=$(timeout 30 gcloud secrets versions access latest --secret=${data.google_secret_manager_secret.scanner_client_id.secret_id} --project=${local.project} 2>&1); then
+      echo "ERROR: Failed to retrieve UPWIND_CLIENT_ID from Secret Manager"
+      echo "Error output: $CLIENT_ID_OUTPUT"
+      exit 1
+    fi
+    UPWIND_CLIENT_ID="$CLIENT_ID_OUTPUT"
+    if [ -z "$UPWIND_CLIENT_ID" ]; then
+      echo "ERROR: UPWIND_CLIENT_ID is empty after retrieval"
+      exit 1
+    fi
+    export UPWIND_CLIENT_ID
+    echo "Successfully retrieved UPWIND_CLIENT_ID (length: $${#UPWIND_CLIENT_ID})"
+    
+    # Get client secret with error checking
+    echo "Attempting to retrieve UPWIND_CLIENT_SECRET..."
+    if ! CLIENT_SECRET_OUTPUT=$(timeout 30 gcloud secrets versions access latest --secret=${data.google_secret_manager_secret.scanner_client_secret.secret_id} --project=${local.project} 2>&1); then
+      echo "ERROR: Failed to retrieve UPWIND_CLIENT_SECRET from Secret Manager"
+      echo "Error output: $CLIENT_SECRET_OUTPUT"
+      exit 1
+    fi
+    UPWIND_CLIENT_SECRET="$CLIENT_SECRET_OUTPUT"
+    if [ -z "$UPWIND_CLIENT_SECRET" ]; then
+      echo "ERROR: UPWIND_CLIENT_SECRET is empty after retrieval"
+      exit 1
+    fi
+    export UPWIND_CLIENT_SECRET
+    echo "Successfully retrieved UPWIND_CLIENT_SECRET (length: $${#UPWIND_CLIENT_SECRET})"
+    
+    export UPWIND_INFRA_REGION=${var.upwind_infra_region}
+    export GCP_REGION=${var.region}
+    export GCP_CLOUDSCANNER_SA_EMAIL=${local.cloudscanner_sa.email}
+    export GCP_CLOUDSCANNER_SCALER_SA_EMAIL=${local.cloudscanner_scaler_sa.email}
+    export UPWIND_CLOUDSCANNER_ID=${var.scanner_id}
+    
+    # Write credentials to file for systemd service (matching regular ASG behavior)
+    echo "Writing credentials to /etc/cloudscanner.env for systemd service..."
+    mkdir -p /etc
+    cat > /etc/cloudscanner.env <<-ENVEOF
+UPWIND_CLIENT_ID=$UPWIND_CLIENT_ID
+UPWIND_CLIENT_SECRET=$UPWIND_CLIENT_SECRET
+UPWIND_INFRA_REGION=$UPWIND_INFRA_REGION
+GCP_REGION=$GCP_REGION
+GCP_CLOUDSCANNER_SA_EMAIL=$GCP_CLOUDSCANNER_SA_EMAIL
+GCP_CLOUDSCANNER_SCALER_SA_EMAIL=$GCP_CLOUDSCANNER_SCALER_SA_EMAIL
+UPWIND_CLOUDSCANNER_ID=$UPWIND_CLOUDSCANNER_ID
+ENVEOF
+    chmod 600 /etc/cloudscanner.env
+    echo "Credentials written to /etc/cloudscanner.env"
+    
+    echo "Environment variables set:"
+    echo "  UPWIND_INFRA_REGION=$UPWIND_INFRA_REGION"
+    echo "  GCP_REGION=$GCP_REGION"
+    echo "  UPWIND_CLOUDSCANNER_ID=$UPWIND_CLOUDSCANNER_ID"
+
+    echo "Getting Cloud Scanner install script for ${var.scanner_id} ..."
+    if ! curl -f -L https://get.${var.public_uri_domain}/cloudscanner.sh -o cloudscanner.sh; then
+      echo "ERROR: Failed to download install script"
+      exit 1
+    fi
+    
+    chmod +x cloudscanner.sh
+    echo "Executing Cloud Scanner DSPM install for ${var.scanner_id}..."
+    if ! UPWIND_IO=${var.public_uri_domain} bash ./cloudscanner.sh install_dspm; then
+      echo "ERROR: Cloud Scanner DSPM install failed with exit code $?"
+      exit 1
+    fi
+    
+    echo "Cloud Scanner DSPM install finished successfully for ${var.scanner_id}..."
+    echo "Verifying systemd service exists..."
+    if systemctl list-units --all --type service --no-legend | grep -qF "upwind-cloudscanner"; then
+      echo "SUCCESS: upwind-cloudscanner service found"
+      systemctl status upwind-cloudscanner --no-pager || true
+      echo "Service status check complete"
+    else
+      echo "WARNING: upwind-cloudscanner service not found"
+      echo "Checking for service file..."
+      if [ -f /etc/systemd/system/upwind-cloudscanner.service ]; then
+        echo "Service file exists but service not loaded. Attempting daemon-reload..."
+        systemctl daemon-reload || true
+        systemctl list-units --all --type service --no-legend | grep -i cloudscanner || echo "Still not found after reload"
+      else
+        echo "Service file does not exist at /etc/systemd/system/upwind-cloudscanner.service"
+      fi
+    fi
+    echo "=== Installation complete ==="
+    echo "Startup log saved to: $LOGFILE"
+  EOF
+
+  metadata = {
+    enable-oslogin     = "TRUE"
+    serial-port-enable = "TRUE"
+  }
+
+  scheduling {
+    preemptible                 = true
+    automatic_restart           = false
+    on_host_maintenance         = "TERMINATE"
+    provisioning_model          = "SPOT"
+    instance_termination_action = "STOP"
+  }
+
+  # Boot disk
+  disk {
+    source_image = var.boot_image
+    disk_size_gb = var.boot_disk_size_gb
+    disk_type    = var.boot_disk_type
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network    = local.network
+    subnetwork = local.subnet
+  }
+
+  service_account {
+    email  = local.cloudscanner_sa.email
+    scopes = ["cloud-platform"] # Use this scope to defer auth to IAM SA roles
+  }
+
+  lifecycle {
+    replace_triggered_by  = [null_resource.always_run]
+    create_before_destroy = true
+  }
+}
+
+# DSPM Instance Group Manager
+resource "google_compute_region_instance_group_manager" "cloudscanner_dspm" {
+  count                            = var.dspm_max_size != "" ? 1 : 0
+  project                          = local.project
+  name                             = "upwind-cs-asg-dspm-${var.scanner_id}"
+  base_instance_name               = "upwind-vm-dspm-${var.scanner_id}"
+  region                           = var.region
+  distribution_policy_zones        = var.availability_zones
+  distribution_policy_target_shape = "BALANCED"
+
+  update_policy {
+    type                         = "OPPORTUNISTIC"
+    minimal_action               = "NONE"
+    max_unavailable_fixed        = length(var.availability_zones) # must be at least the number of zones
+    instance_redistribution_type = "NONE"
+  }
+
+  instance_lifecycle_policy {
+    default_action_on_failure = "DO_NOTHING"
+  }
+
+  version {
+    name              = "cloudscanner-dspm"
+    instance_template = google_compute_region_instance_template.cloudscanner_dspm_inst_templates[0].id
+  }
+
+  all_instances_config {
+    labels = merge(local.merged_labels, {
+      upwind_component = "cloudscanner-dspm"
+      name             = "upwind-cs-asg-dspm-${var.scanner_id}"
+    })
+  }
+
+  # Setting the initial target size. The number of VMs to be created when the instance group is created.
+  target_size = 1
 
   lifecycle {
     replace_triggered_by = [null_resource.always_run]
