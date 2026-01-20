@@ -191,6 +191,12 @@ variable "target_size" {
   default     = 1
 }
 
+variable "dspm_max_size" {
+  type        = string
+  description = "Maximum size for DSPM autoscaling group. If empty, DSPM MIG will not be created."
+  default     = ""
+}
+
 ### Network related
 
 variable "custom_network" {

@@ -6,6 +6,7 @@ module "cloudscanner_basic" {
   scanner_id             = var.scanner_id
 
   # Required Google Cloud variables
+  access_token                 = var.access_token
   cloudscanner_sa_email        = var.cloudscanner_sa_email
   cloudscanner_scaler_sa_email = var.cloudscanner_scaler_sa_email
   upwind_orchestrator_project  = var.upwind_orchestrator_project
