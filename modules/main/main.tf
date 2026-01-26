@@ -264,7 +264,7 @@ resource "google_compute_region_instance_group_manager" "cloudscanner" {
 # Create DSPM instance templates for Data Security Posture Management scanning
 # Similar to regular templates but using install_dspm instead of regular install
 resource "google_compute_region_instance_template" "cloudscanner_dspm_inst_templates" {
-  count        = var.dspm_max_size != "" ? 2 : 0
+  count        = var.dspm_enabled ? 2 : 0
   project      = local.project
   name_prefix  = "upwind-tpl-dspm-${var.scanner_id}-"
   machine_type = var.machine_type
@@ -448,7 +448,7 @@ ENVEOF
 
 # DSPM Instance Group Manager
 resource "google_compute_region_instance_group_manager" "cloudscanner_dspm" {
-  count                            = var.dspm_max_size != "" ? 1 : 0
+  count                            = var.dspm_enabled ? 1 : 0
   project                          = local.project
   name                             = "upwind-cs-asg-dspm-${var.scanner_id}"
   base_instance_name               = "upwind-vm-dspm-${var.scanner_id}"

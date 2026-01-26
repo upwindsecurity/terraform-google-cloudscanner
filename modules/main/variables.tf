@@ -191,10 +191,10 @@ variable "target_size" {
   default     = 1
 }
 
-variable "dspm_max_size" {
-  type        = string
-  description = "Maximum size for DSPM autoscaling group. If empty, DSPM MIG will not be created."
-  default     = ""
+variable "dspm_enabled" {
+  type        = bool
+  description = "Enable DSPM (Data Security Posture Management). If false, DSPM MIG will not be created."
+  default     = false
 }
 
 ### Network related
