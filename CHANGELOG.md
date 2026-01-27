@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [1.6.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.6.0...v1.6.1) (2026-01-27)
+
+### Bug Fixes
+
+* **AG-0:** make release ([#38](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/38)) ([af94c4d](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/af94c4d1ad1b373c91512a20f71e3d2195314915))
+
 ## [1.6.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.6.0...v1.6.1) (2026-01-26)
 
 ### Features
