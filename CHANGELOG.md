@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug Fixes
 
 * **AG-4466:** allow wider range of zones ([#40](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/40)) ([fc9c3e5](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/fc9c3e557813dbfb763a0fc0ae35c78d77c7ab71))
+* 
+## [1.6.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.6.0...v1.6.1) (2026-01-27)
+
+### Bug Fixes
+
+* **AG-0:** make release ([#38](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/38)) ([af94c4d](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/af94c4d1ad1b373c91512a20f71e3d2195314915))
 
 ## [1.6.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.6.0...v1.6.1) (2026-01-26)
 
