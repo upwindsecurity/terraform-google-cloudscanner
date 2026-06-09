@@ -75,4 +75,6 @@ resource "google_compute_firewall" "cloudscanner_fw_iap_ssh" {
   # Target specific instances
   target_tags = ["ssh-enabled"]
   priority    = 1000
+
+  depends_on = [google_compute_network.cloudscanner_network]
 }
