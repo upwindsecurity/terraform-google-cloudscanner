@@ -204,13 +204,14 @@ ENVEOF
     boot         = true
   }
 
-  # Enable Secure Boot to satisfy org policies that mandate it (e.g.
-  # constraints/compute.requireShieldedVm with Secure Boot). vTPM and
-  # integrity monitoring are left at their provider defaults (on), which
-  # they already were for the UEFI_COMPATIBLE default Ubuntu LTS image.
-  # Secure Boot requires that UEFI_COMPATIBLE, signed image.
+  # Shielded VM settings. Required to satisfy the
+  # constraints/compute.requireShieldedVm org policy (and stricter
+  # policies that mandate Secure Boot). The boot image must be
+  # UEFI_COMPATIBLE, which the default Ubuntu LTS image is.
   shielded_instance_config {
-    enable_secure_boot = var.enable_secure_boot
+    enable_secure_boot          = var.enable_secure_boot
+    enable_vtpm                 = true
+    enable_integrity_monitoring = true
   }
 
   network_interface {
@@ -439,13 +440,14 @@ ENVEOF
     boot         = true
   }
 
-  # Enable Secure Boot to satisfy org policies that mandate it (e.g.
-  # constraints/compute.requireShieldedVm with Secure Boot). vTPM and
-  # integrity monitoring are left at their provider defaults (on), which
-  # they already were for the UEFI_COMPATIBLE default Ubuntu LTS image.
-  # Secure Boot requires that UEFI_COMPATIBLE, signed image.
+  # Shielded VM settings. Required to satisfy the
+  # constraints/compute.requireShieldedVm org policy (and stricter
+  # policies that mandate Secure Boot). The boot image must be
+  # UEFI_COMPATIBLE, which the default Ubuntu LTS image is.
   shielded_instance_config {
-    enable_secure_boot = var.enable_secure_boot
+    enable_secure_boot          = var.enable_secure_boot
+    enable_vtpm                 = true
+    enable_integrity_monitoring = true
   }
 
   network_interface {
