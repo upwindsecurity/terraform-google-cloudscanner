@@ -204,6 +204,16 @@ ENVEOF
     boot         = true
   }
 
+  # Shielded VM settings. Required to satisfy the
+  # constraints/compute.requireShieldedVm org policy (and stricter
+  # policies that mandate Secure Boot). The boot image must be
+  # UEFI_COMPATIBLE, which the default Ubuntu LTS image is.
+  shielded_instance_config {
+    enable_secure_boot          = var.enable_secure_boot
+    enable_vtpm                 = true
+    enable_integrity_monitoring = true
+  }
+
   network_interface {
     network    = local.network
     subnetwork = local.subnet
@@ -428,6 +438,16 @@ ENVEOF
     disk_type    = var.boot_disk_type
     auto_delete  = true
     boot         = true
+  }
+
+  # Shielded VM settings. Required to satisfy the
+  # constraints/compute.requireShieldedVm org policy (and stricter
+  # policies that mandate Secure Boot). The boot image must be
+  # UEFI_COMPATIBLE, which the default Ubuntu LTS image is.
+  shielded_instance_config {
+    enable_secure_boot          = var.enable_secure_boot
+    enable_vtpm                 = true
+    enable_integrity_monitoring = true
   }
 
   network_interface {
