@@ -173,6 +173,12 @@ variable "boot_image" {
   default     = "ubuntu-os-cloud/ubuntu-2404-lts-amd64"
 }
 
+variable "enable_secure_boot" {
+  type        = bool
+  description = "Enable Secure Boot on scanner instances. Requires a UEFI_COMPATIBLE, signed boot image (the default Ubuntu LTS image qualifies). vTPM and integrity monitoring are always enabled."
+  default     = true
+}
+
 variable "boot_disk_size_gb" {
   type        = number
   description = "The disk size in GB to use."
