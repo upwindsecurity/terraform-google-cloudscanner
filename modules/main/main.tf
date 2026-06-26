@@ -540,8 +540,12 @@ resource "google_cloud_run_v2_job" "scaler_function" {
           name = "UPWIND_AUTH_CLIENT_ID"
           value_source {
             secret_key_ref {
-              secret  = data.google_secret_manager_secret.scanner_client_id.secret_id
-              version = data.google_secret_manager_secret_version.scanner_client_id_v1.version
+              secret = data.google_secret_manager_secret.scanner_client_id.secret_id
+              # "latest" is resolved at each job execution, so a rotated secret is
+              # picked up automatically without a terraform apply. Pinning a numeric
+              # version here would leave the scaler on a stale (possibly disabled)
+              # version after rotation, causing ObtainToken 401s.
+              version = "latest"
             }
           }
         }
@@ -551,7 +555,7 @@ resource "google_cloud_run_v2_job" "scaler_function" {
           value_source {
             secret_key_ref {
               secret  = data.google_secret_manager_secret.scanner_client_secret.secret_id
-              version = data.google_secret_manager_secret_version.scanner_client_secret_v1.version
+              version = "latest"
             }
           }
         }
