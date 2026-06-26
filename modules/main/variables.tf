@@ -20,6 +20,17 @@ variable "scanner_id" {
   }
 }
 
+variable "scanner_secret_version" {
+  type        = string
+  description = "Secret Manager version for the scanner client id/secret mounted into the scaler job. Defaults to \"latest\", so a rotated credential is picked up on the next job execution with no apply. Set to a specific numeric version (e.g. \"3\") only to deliberately pin."
+  default     = "latest"
+
+  validation {
+    condition     = var.scanner_secret_version == "latest" || can(regex("^[1-9][0-9]*$", var.scanner_secret_version))
+    error_message = "The scanner_secret_version must be \"latest\" or a positive integer version number (e.g. \"3\")."
+  }
+}
+
 variable "public_uri_domain" {
   type        = string
   description = "The public URI domain."

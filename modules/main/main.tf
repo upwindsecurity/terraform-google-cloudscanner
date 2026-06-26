@@ -94,7 +94,7 @@ resource "google_compute_region_instance_template" "cloudscanner_inst_templates"
     
     # Get client ID with error checking
     echo "Attempting to retrieve UPWIND_CLIENT_ID..."
-    if ! CLIENT_ID_OUTPUT=$(timeout 30 gcloud secrets versions access latest --secret=${data.google_secret_manager_secret.scanner_client_id.secret_id} --project=${local.project} 2>&1); then
+    if ! CLIENT_ID_OUTPUT=$(timeout 30 gcloud secrets versions access ${var.scanner_secret_version} --secret=${data.google_secret_manager_secret.scanner_client_id.secret_id} --project=${local.project} 2>&1); then
       echo "ERROR: Failed to retrieve UPWIND_CLIENT_ID from Secret Manager"
       echo "Error output: $CLIENT_ID_OUTPUT"
       exit 1
@@ -109,7 +109,7 @@ resource "google_compute_region_instance_template" "cloudscanner_inst_templates"
     
     # Get client secret with error checking
     echo "Attempting to retrieve UPWIND_CLIENT_SECRET..."
-    if ! CLIENT_SECRET_OUTPUT=$(timeout 30 gcloud secrets versions access latest --secret=${data.google_secret_manager_secret.scanner_client_secret.secret_id} --project=${local.project} 2>&1); then
+    if ! CLIENT_SECRET_OUTPUT=$(timeout 30 gcloud secrets versions access ${var.scanner_secret_version} --secret=${data.google_secret_manager_secret.scanner_client_secret.secret_id} --project=${local.project} 2>&1); then
       echo "ERROR: Failed to retrieve UPWIND_CLIENT_SECRET from Secret Manager"
       echo "Error output: $CLIENT_SECRET_OUTPUT"
       exit 1
@@ -320,7 +320,7 @@ resource "google_compute_region_instance_template" "cloudscanner_dspm_inst_templ
     
     # Get client ID with error checking
     echo "Attempting to retrieve UPWIND_CLIENT_ID..."
-    if ! CLIENT_ID_OUTPUT=$(timeout 30 gcloud secrets versions access latest --secret=${data.google_secret_manager_secret.scanner_client_id.secret_id} --project=${local.project} 2>&1); then
+    if ! CLIENT_ID_OUTPUT=$(timeout 30 gcloud secrets versions access ${var.scanner_secret_version} --secret=${data.google_secret_manager_secret.scanner_client_id.secret_id} --project=${local.project} 2>&1); then
       echo "ERROR: Failed to retrieve UPWIND_CLIENT_ID from Secret Manager"
       echo "Error output: $CLIENT_ID_OUTPUT"
       exit 1
@@ -335,7 +335,7 @@ resource "google_compute_region_instance_template" "cloudscanner_dspm_inst_templ
     
     # Get client secret with error checking
     echo "Attempting to retrieve UPWIND_CLIENT_SECRET..."
-    if ! CLIENT_SECRET_OUTPUT=$(timeout 30 gcloud secrets versions access latest --secret=${data.google_secret_manager_secret.scanner_client_secret.secret_id} --project=${local.project} 2>&1); then
+    if ! CLIENT_SECRET_OUTPUT=$(timeout 30 gcloud secrets versions access ${var.scanner_secret_version} --secret=${data.google_secret_manager_secret.scanner_client_secret.secret_id} --project=${local.project} 2>&1); then
       echo "ERROR: Failed to retrieve UPWIND_CLIENT_SECRET from Secret Manager"
       echo "Error output: $CLIENT_SECRET_OUTPUT"
       exit 1
@@ -541,11 +541,11 @@ resource "google_cloud_run_v2_job" "scaler_function" {
           value_source {
             secret_key_ref {
               secret = data.google_secret_manager_secret.scanner_client_id.secret_id
-              # "latest" is resolved at each job execution, so a rotated secret is
-              # picked up automatically without a terraform apply. Pinning a numeric
-              # version here would leave the scaler on a stale (possibly disabled)
-              # version after rotation, causing ObtainToken 401s.
-              version = "latest"
+              # Defaults to "latest", which is resolved at each job execution, so a
+              # rotated credential is picked up automatically without a terraform apply.
+              # Pinning a numeric version here would leave the scaler on a stale
+              # (possibly disabled) version after rotation, causing ObtainToken 401s.
+              version = var.scanner_secret_version
             }
           }
         }
@@ -555,7 +555,7 @@ resource "google_cloud_run_v2_job" "scaler_function" {
           value_source {
             secret_key_ref {
               secret  = data.google_secret_manager_secret.scanner_client_secret.secret_id
-              version = "latest"
+              version = var.scanner_secret_version
             }
           }
         }

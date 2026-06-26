@@ -79,6 +79,7 @@ No modules.
 | <a name="input_region"></a> [region](#input\_region) | The region that all resources will be created in. | `string` | `"us-central1"` | no |
 | <a name="input_scaler_function_schedule"></a> [scaler\_function\_schedule](#input\_scaler\_function\_schedule) | The schedule to use for the scaler function. | `string` | `"*/10 * * * *"` | no |
 | <a name="input_scanner_id"></a> [scanner\_id](#input\_scanner\_id) | The Upwind Scanner ID. | `string` | n/a | yes |
+| <a name="input_scanner_secret_version"></a> [scanner\_secret\_version](#input\_scanner\_secret\_version) | Secret Manager version for the scanner client id/secret mounted into the scaler job. Defaults to "latest", so a rotated credential is picked up on the next job execution with no apply. Set to a specific numeric version (e.g. "3") only to deliberately pin. | `string` | `"latest"` | no |
 | <a name="input_scheduler_region"></a> [scheduler\_region](#input\_scheduler\_region) | The region to use for the Cloud Scheduler job. If not set, the default\_scheduler\_region will be used. | `string` | `""` | no |
 | <a name="input_target_size"></a> [target\_size](#input\_target\_size) | The target size of the autoscaling group. | `number` | `1` | no |
 | <a name="input_upwind_infra_region"></a> [upwind\_infra\_region](#input\_upwind\_infra\_region) | The Upwind infrastructure region where the resources are created. | `string` | `"us"` | no |
