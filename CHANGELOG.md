@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.7.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.7.0...v1.7.1) (2026-06-30)
+
+### Bug Fixes
+
+* **UP-2641:** Add AP Region ([#51](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/51)) ([c59fa52](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/c59fa529945e49a5ae0dc585739f47f5f4774980))
+
 ## [1.6.2](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.6.1...v1.6.2) (2026-01-29)
 
 ### Bug Fixes
