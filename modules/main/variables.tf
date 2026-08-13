@@ -51,7 +51,7 @@ variable "scaler_function_schedule" {
 variable "scaler_vpc_egress" {
   type        = string
   description = "Egress setting for the scaler function's Direct VPC egress. Some customer GCP org policies (constraints/run.allowedVPCEgress) require Cloud Run resources to declare this explicitly."
-  default     = "PRIVATE_RANGES_ONLY"
+  default     = "ALL_TRAFFIC"
 
   validation {
     condition     = contains(["ALL_TRAFFIC", "PRIVATE_RANGES_ONLY"], var.scaler_vpc_egress)
