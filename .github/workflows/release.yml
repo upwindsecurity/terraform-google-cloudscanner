@@ -6,7 +6,9 @@ on:
       - main
 
 permissions:
-  contents: write        # Required to create and push release tags and the changelog commit
+  contents: write        # Required to create and push release tags
+  pull-requests: write   # Required to create PRs for version updates
+  issues: write          # Required to create and manage labels on PRs
 
 jobs:
   discover-modules:
@@ -49,10 +51,27 @@ jobs:
         # Extra plugins and presets (need explicit installation):
         extra_plugins: |
           @semantic-release/changelog@6.0.3
-          @semantic-release/git@10.0.1
           conventional-changelog-conventionalcommits@9.0.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Pull Request with Changelog
+      if: success() && steps.release.outputs.new_release_published == 'true'
+      uses: peter-evans/create-pull-request@v7
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "chore(release): v${{ steps.release.outputs.new_release_version }} [skip ci]"
+        title: "chore(release): v${{ steps.release.outputs.new_release_version }}"
+        body: |
+          This PR contains the release changes for v${{ steps.release.outputs.new_release_version }}, including:
+          - Updated CHANGELOG.md
+          - Release tag: v${{ steps.release.outputs.new_release_version }}
+
+          This PR was automatically created by the release workflow.
+        branch: release-${{ steps.release.outputs.new_release_version }}
+        labels: |
+          kind/release
+          lifecycle/automated
 
     - name: Build Terraform Modules
       if: steps.release.outputs.new_release_published == 'true'
