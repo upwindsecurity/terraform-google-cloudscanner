@@ -48,6 +48,17 @@ variable "scaler_function_schedule" {
   default     = "*/10 * * * *" # Every 10 minutes
 }
 
+variable "scaler_vpc_egress" {
+  type        = string
+  description = "Egress setting for the scaler function's Direct VPC egress. Some customer GCP org policies (constraints/run.allowedVPCEgress) require Cloud Run resources to declare this explicitly."
+  default     = "PRIVATE_RANGES_ONLY"
+
+  validation {
+    condition     = contains(["ALL_TRAFFIC", "PRIVATE_RANGES_ONLY"], var.scaler_vpc_egress)
+    error_message = "scaler_vpc_egress must be ALL_TRAFFIC or PRIVATE_RANGES_ONLY."
+  }
+}
+
 variable "upwind_infra_region" {
   type        = string
   description = "The Upwind infrastructure region where the resources are created."
