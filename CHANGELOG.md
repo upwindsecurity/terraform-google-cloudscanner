@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.8.0](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.7.2...v1.8.0) (2026-08-13)
+
+### Features
+
+* **UP-5412:** add vpc_access to cloud run job definition ([#55](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/55)) ([607382c](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/607382c50aa73cb1e5293a734ba164bba499e80c))
+
 ## [1.6.2](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.6.1...v1.6.2) (2026-01-29)
 
 ### Bug Fixes
