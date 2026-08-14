@@ -27,6 +27,17 @@ locals {
   subnet = var.custom_network != "" ? (
     var.custom_subnet != "" ? data.google_compute_subnetwork.custom_subnet[0].self_link : ""
   ) : google_compute_subnetwork.cloudscanner_subnetwork[0].self_link
+
+  # Cloud Run v2's vpc_access.network_interfaces wants the Cloud Run Admin API's
+  # short resource path (projects/*/global/networks/*, .../subnetworks/*), not the
+  # Compute API self_link that local.network/local.subnet hold - self_link gets
+  # rejected with "Expected a network name like projects/*/global/networks/*".
+  # The .id attribute on both the resource and the existing custom_network/
+  # custom_subnet data sources is already in that exact format.
+  run_network = var.custom_network != "" ? data.google_compute_network.custom_network[0].id : google_compute_network.cloudscanner_network[0].id
+  run_subnetwork = var.custom_network != "" ? (
+    var.custom_subnet != "" ? data.google_compute_subnetwork.custom_subnet[0].id : null
+  ) : google_compute_subnetwork.cloudscanner_subnetwork[0].id
   # Merge default labels with user-provided labels
   # User labels override defaults if keys conflict
   merged_labels = merge(var.default_labels, var.labels)
@@ -583,6 +594,19 @@ resource "google_cloud_run_v2_job" "scaler_function" {
             }
           }
         }
+      }
+
+      # Satisfies the constraints/run.allowedVPCEgress org policy some customers
+      # enforce, which rejects Cloud Run resources with no explicit egress setting.
+      # PRIVATE_RANGES_ONLY is sufficient: the scaler only calls public Upwind/GCP
+      # endpoints, so this doesn't change its actual traffic path, and it avoids
+      # depending on Cloud NAT being present for a var.custom_network deployment.
+      vpc_access {
+        network_interfaces {
+          network    = local.run_network
+          subnetwork = local.run_subnetwork
+        }
+        egress = var.scaler_vpc_egress
       }
 
       # Setting the max tries to 1 as the retries will be performed by the Job scheduler

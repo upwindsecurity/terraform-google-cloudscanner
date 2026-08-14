@@ -6,6 +6,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.8.0](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.7.2...v1.8.0) (2026-08-13)
+
+### Features
+
+* **UP-5412:** add vpc_access to cloud run job definition ([#55](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/55)) ([607382c](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/607382c50aa73cb1e5293a734ba164bba499e80c))
+
+## [1.7.2](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.7.1...v1.7.2) (2026-06-30)
+
+### Bug Fixes
+
+* **UP-2569:** use latest secret version for scaler, README updated ([#50](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/50)) ([1e060e7](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/1e060e7294d894747d5cc430717adbb604db5a73))
+
+## [1.7.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.7.0...v1.7.1) (2026-06-30)
+
+### Bug Fixes
+
+* **UP-2641:** Add AP Region ([#51](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/51)) ([c59fa52](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/c59fa529945e49a5ae0dc585739f47f5f4774980))
+
+## [1.7.0](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.6.3...v1.7.0) (2026-06-19)
+
+### Features
+
+* **UP-2441:** enable recommended ShieldedVM settings on instance templates ([#48](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/48)) ([3aa0778](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/3aa0778e0030febfb1a06ed1d5186e3d2b8bb6ca))
+
+## [1.6.3](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.6.2...v1.6.3) (2026-06-09)
+
+### Bug Fixes
+
+* **UP-0:** fix for network is already being used error ([#45](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/45)) ([26bc4d0](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/26bc4d0085f31428cb2f49dcd677d6c4a8e8c7af))
+
 ## [1.6.2](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.6.1...v1.6.2) (2026-01-29)
 
 ### Bug Fixes
