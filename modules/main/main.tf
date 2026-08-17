@@ -278,6 +278,8 @@ resource "google_compute_region_instance_group_manager" "cloudscanner" {
 
   lifecycle {
     replace_triggered_by = [null_resource.always_run]
+    # The scaler adjusts target_size at runtime; don't fight it on subsequent applies.
+    ignore_changes = [target_size]
   }
 }
 
@@ -515,6 +517,8 @@ resource "google_compute_region_instance_group_manager" "cloudscanner_dspm" {
 
   lifecycle {
     replace_triggered_by = [null_resource.always_run]
+    # The scaler adjusts target_size at runtime; don't fight it on subsequent applies.
+    ignore_changes = [target_size]
   }
 }
 
