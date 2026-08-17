@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.8.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.8.0...v1.8.1) (2026-08-13)
+
+### Bug Fixes
+
+* **UP-0:** revert direct-to-main changelog changes ([#58](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/58)) ([7da4705](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/7da47053104fde57020ca1bf242cdacf7d06fafc))
+* **UP-5412:** scaler vpc egress default value ([#57](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/57)) ([9797718](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/97977184cdbdc5b2442d8697dd2b4051ddfe2fce))
+
 ## [1.8.0](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.7.2...v1.8.0) (2026-08-13)
 
 ### Features
