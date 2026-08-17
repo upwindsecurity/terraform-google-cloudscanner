@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Features
 
 * **UP-0:** ignore changes on target size for instance groups ([#60](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/60)) ([b00272d](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/b00272d0e15c1a256ef3e798775cae5b2d51fff1))
+
 ## [1.8.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.8.0...v1.8.1) (2026-08-13)
 
 ### Bug Fixes
