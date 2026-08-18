@@ -635,7 +635,7 @@ resource "google_cloud_scheduler_job" "scaler_scheduler_job" {
 
   http_target {
     http_method = "POST"
-    uri         = "https://${google_cloud_run_v2_job.scaler_function.location}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${local.project}/jobs/${google_cloud_run_v2_job.scaler_function.name}:run"
+    uri         = "https://run.googleapis.com/v2/projects/${local.project}/locations/${google_cloud_run_v2_job.scaler_function.location}/jobs/${google_cloud_run_v2_job.scaler_function.name}:run"
 
     oauth_token {
       service_account_email = local.cloudscanner_scaler_sa.email
