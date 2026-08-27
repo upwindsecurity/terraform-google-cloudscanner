@@ -45,7 +45,6 @@ locals {
   # Prefixes must start with "upwind-tpl-" (the scaler's IAM binding is conditioned on it)
   # and stay within inst_template_max_name_prefix chars, or the google provider falls back to
   # a date-based unique suffix that collides with create_before_destroy replacements (409).
-  inst_template_max_name_prefix  = 37
   inst_template_name_prefix      = "upwind-tpl-${var.scanner_id}-"
   dspm_inst_template_name_prefix = "upwind-tpl-ds-${var.scanner_id}-"
 }
