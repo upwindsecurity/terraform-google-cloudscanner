@@ -18,6 +18,14 @@ variable "scanner_id" {
     condition     = can(regex("^ucsc-[a-zA-Z0-9]{1,}$", var.scanner_id))
     error_message = "The Upwind scanner ID must start with 'ucsc-' followed by alphanumeric characters."
   }
+
+  validation {
+    condition = (
+      length("upwind-tpl-${var.scanner_id}-") <= 37 &&
+      (!var.dspm_enabled || length("upwind-tpl-ds-${var.scanner_id}-") <= 37)
+    )
+    error_message = "The scanner_id is too long for the Cloud Scanner instance template name prefix. Keep the generated prefix at or below 37 characters to preserve collision-safe provider naming."
+  }
 }
 
 variable "scanner_secret_version" {
