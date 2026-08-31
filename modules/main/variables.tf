@@ -15,8 +15,11 @@ variable "scanner_id" {
   description = "The Upwind Scanner ID."
 
   validation {
-    condition     = can(regex("^ucsc-[a-zA-Z0-9]{1,}$", var.scanner_id))
-    error_message = "The Upwind scanner ID must start with 'ucsc-' followed by alphanumeric characters."
+    condition = (
+      can(regex("^ucsc-[a-z0-9]+$", var.scanner_id)) &&
+      length(var.scanner_id) <= 26
+    )
+    error_message = "The Upwind scanner ID must start with 'ucsc-', contain only lowercase letters and numbers, and be at most 26 characters so generated Google Cloud resource names remain valid."
   }
 }
 
