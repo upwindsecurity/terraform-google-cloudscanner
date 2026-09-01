@@ -1,4 +1,4 @@
-.PHONY: help init fmt docs pre-commit test-validate test-format test-lint test-security test test-all test-module test-examples clean install-tools setup
+.PHONY: help init fmt docs pre-commit test-validate test-format test-lint test-unit test-security test test-all test-module test-examples clean install-tools setup
 
 # Default target
 help: ## Show this help message
@@ -58,10 +58,19 @@ test-lint: ## Run linting tests
 	tflint --init || echo "Warning: TFLint plugin initialization failed, continuing with basic linting"
 	tflint --config .config/.tflint.hcl
 
+test-unit: ## Run native Terraform tests without creating cloud resources
+	@echo "Running Terraform tests for all modules..."
+	@for module in modules/*/; do \
+		if [ -d "$$module/tests" ]; then \
+			echo "Testing $$module"; \
+			cd $$module && terraform test && cd ../..; \
+		fi; \
+	done
+
 test-security: ## Run security tests
 	trivy config .
 
-test: test-validate test-format test-lint ## Run basic tests
+test: test-validate test-format test-lint test-unit ## Run basic tests
 
 test-all: test test-security ## Run all tests including security scan
 
@@ -74,7 +83,7 @@ test-module: ## Run tests for a specific module or example (use MODULE=module_na
 			exit 1; \
 		fi; \
 		echo "Testing module: $(MODULE)"; \
-		cd modules/$(MODULE) && terraform init && terraform validate && cd ../..; \
+		cd modules/$(MODULE) && terraform init && terraform validate && terraform test && cd ../..; \
 		terraform fmt -check modules/$(MODULE)/; \
 		tflint --config .config/.tflint.hcl modules/$(MODULE)/; \
 		trivy config modules/$(MODULE)/ --exit-code 0; \

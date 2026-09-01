@@ -58,6 +58,10 @@ jobs:
       run: terraform validate
       working-directory: modules/${{ matrix.module }}
 
+    - name: Run Terraform Tests
+      run: terraform test
+      working-directory: modules/${{ matrix.module }}
+
   terraform-tflint:
     name: Terraform Lint (${{ matrix.module }})
     runs-on: ubuntu-latest

@@ -13,6 +13,16 @@ data "google_compute_subnetwork" "custom_subnet" {
   project = local.project
   name    = var.custom_subnet
   region  = var.region
+
+  lifecycle {
+    postcondition {
+      condition = (
+        self.network == data.google_compute_network.custom_network[0].name ||
+        endswith(self.network, "/networks/${data.google_compute_network.custom_network[0].name}")
+      )
+      error_message = "Cloud Scanner preflight failed: custom_subnet (${var.custom_subnet}) does not belong to custom_network (${var.custom_network}). Select a subnet attached to the configured VPC."
+    }
+  }
 }
 
 resource "google_compute_network" "cloudscanner_network" {
