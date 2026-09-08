@@ -192,7 +192,7 @@ variable "machine_type" {
 variable "boot_image" {
   type        = string
   description = "The source image to use for instances."
-  default     = "ubuntu-os-cloud/ubuntu-2404-lts-amd64"
+  default     = "ubuntu-os-cloud/ubuntu-2604-lts-amd64"
 }
 
 variable "enable_secure_boot" {
