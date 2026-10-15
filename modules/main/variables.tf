@@ -48,9 +48,15 @@ variable "scaler_function_schedule" {
   default     = "*/10 * * * *" # Every 10 minutes
 }
 
+variable "scaler_vpc_egress_enabled" {
+  type        = bool
+  description = "Attach the scaler function to the VPC with Direct VPC egress. Only needed where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting: it delays the scaler's startup and holds addresses in the subnet for hours after the scaler is deleted, blocking network teardown."
+  default     = false
+}
+
 variable "scaler_vpc_egress" {
   type        = string
-  description = "Egress setting for the scaler function's Direct VPC egress. Some customer GCP org policies (constraints/run.allowedVPCEgress) require Cloud Run resources to declare this explicitly."
+  description = "Egress setting for the scaler function's Direct VPC egress, used when scaler_vpc_egress_enabled is true."
   default     = "ALL_TRAFFIC"
 
   validation {

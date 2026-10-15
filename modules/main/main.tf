@@ -602,17 +602,20 @@ resource "google_cloud_run_v2_job" "scaler_function" {
         }
       }
 
-      # Satisfies the constraints/run.allowedVPCEgress org policy some customers
-      # enforce, which rejects Cloud Run resources with no explicit egress setting.
-      # PRIVATE_RANGES_ONLY is sufficient: the scaler only calls public Upwind/GCP
-      # endpoints, so this doesn't change its actual traffic path, and it avoids
-      # depending on Cloud NAT being present for a var.custom_network deployment.
-      vpc_access {
-        network_interfaces {
-          network    = local.run_network
-          subnetwork = local.run_subnetwork
+      # Direct VPC egress is off by default: Cloud Run holds its egress addresses in the
+      # subnet for 1-2 hours after the job is deleted, which blocks destroying the network,
+      # and it slows the job's startup. It is only needed to satisfy the
+      # constraints/run.allowedVPCEgress org policy some customers enforce, which rejects
+      # Cloud Run resources with no explicit egress setting.
+      dynamic "vpc_access" {
+        for_each = var.scaler_vpc_egress_enabled ? [1] : []
+        content {
+          network_interfaces {
+            network    = local.run_network
+            subnetwork = local.run_subnetwork
+          }
+          egress = var.scaler_vpc_egress
         }
-        egress = var.scaler_vpc_egress
       }
 
       # Setting the max tries to 1 as the retries will be performed by the Job scheduler
