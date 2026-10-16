@@ -63,7 +63,7 @@ No modules.
 | <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | The zones within the region that will be used for zone based resources. | `list(any)` | <pre>[<br/>  "us-central1-a",<br/>  "us-central1-b",<br/>  "us-central1-c"<br/>]</pre> | no |
 | <a name="input_boot_disk_size_gb"></a> [boot\_disk\_size\_gb](#input\_boot\_disk\_size\_gb) | The disk size in GB to use. | `number` | `40` | no |
 | <a name="input_boot_disk_type"></a> [boot\_disk\_type](#input\_boot\_disk\_type) | The disk type to use. | `string` | `"pd-standard"` | no |
-| <a name="input_boot_image"></a> [boot\_image](#input\_boot\_image) | The source image to use for instances. | `string` | `"ubuntu-os-cloud/ubuntu-2404-lts-amd64"` | no |
+| <a name="input_boot_image"></a> [boot\_image](#input\_boot\_image) | The source image to use for instances. | `string` | `"ubuntu-os-cloud/ubuntu-2604-lts-amd64"` | no |
 | <a name="input_cloudscanner_sa_email"></a> [cloudscanner\_sa\_email](#input\_cloudscanner\_sa\_email) | The cloudscanner service account email to use. | `string` | n/a | yes |
 | <a name="input_cloudscanner_scaler_sa_email"></a> [cloudscanner\_scaler\_sa\_email](#input\_cloudscanner\_scaler\_sa\_email) | The cloudscanner scaler service account email to use. | `string` | n/a | yes |
 | <a name="input_custom_network"></a> [custom\_network](#input\_custom\_network) | The name of a custom network to use. | `string` | `""` | no |
@@ -72,12 +72,15 @@ No modules.
 | <a name="input_default_scheduler_region"></a> [default\_scheduler\_region](#input\_default\_scheduler\_region) | The default region to use for the Cloud Scheduler job if no specific region is provided. | `string` | `"us-central1"` | no |
 | <a name="input_dspm_enabled"></a> [dspm\_enabled](#input\_dspm\_enabled) | Enable DSPM (Data Security Posture Management). If false, DSPM MIG will not be created. | `bool` | `false` | no |
 | <a name="input_enable_iap_ssh"></a> [enable\_iap\_ssh](#input\_enable\_iap\_ssh) | Whether to enable SSH access via IAP | `bool` | `true` | no |
+| <a name="input_enable_secure_boot"></a> [enable\_secure\_boot](#input\_enable\_secure\_boot) | Enable Secure Boot on scanner instances. Requires a UEFI\_COMPATIBLE, signed boot image (the default Ubuntu LTS image qualifies). vTPM and integrity monitoring are always enabled. | `bool` | `true` | no |
 | <a name="input_labels"></a> [labels](#input\_labels) | A map of labels to apply to all resources | `map(string)` | `{}` | no |
 | <a name="input_machine_type"></a> [machine\_type](#input\_machine\_type) | The machine type to use. | `string` | `"e2-highmem-2"` | no |
 | <a name="input_min_nat_ports_per_vm"></a> [min\_nat\_ports\_per\_vm](#input\_min\_nat\_ports\_per\_vm) | Minimum number of ports allocated to each VM for NAT service | `number` | `64` | no |
 | <a name="input_public_uri_domain"></a> [public\_uri\_domain](#input\_public\_uri\_domain) | The public URI domain. | `string` | `"upwind.io"` | no |
 | <a name="input_region"></a> [region](#input\_region) | The region that all resources will be created in. | `string` | `"us-central1"` | no |
 | <a name="input_scaler_function_schedule"></a> [scaler\_function\_schedule](#input\_scaler\_function\_schedule) | The schedule to use for the scaler function. | `string` | `"*/10 * * * *"` | no |
+| <a name="input_scaler_vpc_egress"></a> [scaler\_vpc\_egress](#input\_scaler\_vpc\_egress) | Egress setting for the scaler function's Direct VPC egress, used when scaler\_vpc\_egress\_enabled is true. | `string` | `"ALL_TRAFFIC"` | no |
+| <a name="input_scaler_vpc_egress_enabled"></a> [scaler\_vpc\_egress\_enabled](#input\_scaler\_vpc\_egress\_enabled) | Attach the scaler function to the VPC with Direct VPC egress. Only needed where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting: it delays the scaler's startup and holds addresses in the subnet for hours after the scaler is deleted, blocking network teardown. | `bool` | `false` | no |
 | <a name="input_scanner_id"></a> [scanner\_id](#input\_scanner\_id) | The Upwind Scanner ID. | `string` | n/a | yes |
 | <a name="input_scanner_secret_version"></a> [scanner\_secret\_version](#input\_scanner\_secret\_version) | Secret Manager version for the scanner client id/secret mounted into the scaler job. Defaults to "latest", so a rotated credential is picked up on the next job execution with no apply. Set to a specific numeric version (e.g. "3") only to deliberately pin. | `string` | `"latest"` | no |
 | <a name="input_scheduler_region"></a> [scheduler\_region](#input\_scheduler\_region) | The region to use for the Cloud Scheduler job. If not set, the default\_scheduler\_region will be used. | `string` | `""` | no |
