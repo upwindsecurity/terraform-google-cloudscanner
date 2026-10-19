@@ -530,6 +530,8 @@ resource "google_compute_region_instance_group_manager" "cloudscanner_dspm" {
 
 # Scaler Function
 resource "google_cloud_run_v2_job" "scaler_function" {
+  count = var.create_scaler ? 1 : 0
+
   name                = "upwind-scaler-function-${var.scanner_id}"
   location            = var.region
   deletion_protection = false
@@ -637,6 +639,8 @@ resource "google_cloud_run_v2_job" "scaler_function" {
 # Multiple scheduler jobs in the same region will be created if multiple scanners are deployed in the same region.
 # Each scheduler job can have a single HTTP target, so we create a separate job for each scanner.
 resource "google_cloud_scheduler_job" "scaler_scheduler_job" {
+  count = var.create_scaler ? 1 : 0
+
   name     = "upwind-scaler-scheduler-job-${var.scanner_id}"
   region   = var.scheduler_region != "" ? var.scheduler_region : var.default_scheduler_region
   schedule = var.scaler_function_schedule
@@ -644,7 +648,7 @@ resource "google_cloud_scheduler_job" "scaler_scheduler_job" {
 
   http_target {
     http_method = "POST"
-    uri         = "https://run.googleapis.com/v2/projects/${local.project}/locations/${google_cloud_run_v2_job.scaler_function.location}/jobs/${google_cloud_run_v2_job.scaler_function.name}:run"
+    uri         = "https://run.googleapis.com/v2/projects/${local.project}/locations/${google_cloud_run_v2_job.scaler_function[0].location}/jobs/${google_cloud_run_v2_job.scaler_function[0].name}:run"
 
     oauth_token {
       service_account_email = local.cloudscanner_scaler_sa.email
@@ -653,4 +657,15 @@ resource "google_cloud_scheduler_job" "scaler_scheduler_job" {
   }
 
   depends_on = [google_cloud_run_v2_job.scaler_function]
+}
+
+# Keep existing scaler jobs in place now that they are optional.
+moved {
+  from = google_cloud_run_v2_job.scaler_function
+  to   = google_cloud_run_v2_job.scaler_function[0]
+}
+
+moved {
+  from = google_cloud_scheduler_job.scaler_scheduler_job
+  to   = google_cloud_scheduler_job.scaler_scheduler_job[0]
 }

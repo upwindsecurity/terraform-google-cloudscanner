@@ -12,6 +12,8 @@ The module creates:
 - IAM roles and service account bindings
 - Secret Manager integration for credentials
 
+To scale every scanner in a project from one job instead, apply [modules/scaler](../scaler/) once for the project and set `create_scaler = false` here.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -66,6 +68,7 @@ No modules.
 | <a name="input_boot_image"></a> [boot\_image](#input\_boot\_image) | The source image to use for instances. | `string` | `"ubuntu-os-cloud/ubuntu-2604-lts-amd64"` | no |
 | <a name="input_cloudscanner_sa_email"></a> [cloudscanner\_sa\_email](#input\_cloudscanner\_sa\_email) | The cloudscanner service account email to use. | `string` | n/a | yes |
 | <a name="input_cloudscanner_scaler_sa_email"></a> [cloudscanner\_scaler\_sa\_email](#input\_cloudscanner\_scaler\_sa\_email) | The cloudscanner scaler service account email to use. | `string` | n/a | yes |
+| <a name="input_create_scaler"></a> [create\_scaler](#input\_create\_scaler) | Create this scanner's own scaler Cloud Run job and Scheduler job. Set to false when the project's scanners are scaled by modules/scaler instead: applying with false removes this scanner's scaler. | `bool` | `true` | no |
 | <a name="input_custom_network"></a> [custom\_network](#input\_custom\_network) | The name of a custom network to use. | `string` | `""` | no |
 | <a name="input_custom_subnet"></a> [custom\_subnet](#input\_custom\_subnet) | The name of a custom subnetwork to use. | `string` | `""` | no |
 | <a name="input_default_labels"></a> [default\_labels](#input\_default\_labels) | Default labels applied to all resources (can be overridden) | `map(string)` | <pre>{<br/>  "component": "upwind",<br/>  "managed_by": "terraform"<br/>}</pre> | no |

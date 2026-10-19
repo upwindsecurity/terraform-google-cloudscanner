@@ -15,6 +15,7 @@ with enterprise-grade scalability and reliability.
 This repository contains the following Terraform modules:
 
 - [modules/main/](./modules/main/) - Core Cloud Scanner module with complete infrastructure setup
+- [modules/scaler/](./modules/scaler/) - Per-project scaler (Cloud Run job + Scheduler job) for every scanner in the project
 
 ## Examples
 
