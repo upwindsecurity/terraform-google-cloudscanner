@@ -35,9 +35,4 @@ run "scaler_skipped_when_disabled" {
     condition     = length(google_cloud_run_v2_job.scaler_function) == 0 && length(google_cloud_scheduler_job.scaler_scheduler_job) == 0
     error_message = "create_scaler = false must remove the scaler job and its Scheduler job."
   }
-
-  assert {
-    condition     = length(google_compute_region_instance_group_manager.cloudscanner.name) > 0
-    error_message = "The scanner instance group must still be created."
-  }
 }

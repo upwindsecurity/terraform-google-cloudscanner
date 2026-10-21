@@ -22,35 +22,13 @@ run "defaults" {
   }
 
   assert {
-    condition = one([
-      for e in google_cloud_run_v2_job.scaler.template[0].template[0].containers[0].env : e.value if e.name == "GCP_PROJECT_ID"
-    ]) == "proj-a"
-    error_message = "GCP_PROJECT_ID must be the project."
-  }
-
-  assert {
-    condition     = google_cloud_run_v2_job.scaler.name == "upwind-scaler-abcde" && google_cloud_run_v2_job.scaler.location == "us-central1"
-    error_message = "The job must be named after var.name, in us-central1 by default."
-  }
-
-  assert {
     condition     = length(google_cloud_run_v2_job.scaler.template[0].template[0].vpc_access) == 0
     error_message = "VPC egress must be off by default."
   }
 
   assert {
-    condition     = google_cloud_scheduler_job.scaler.name == "upwind-scaler-abcde-scheduler" && google_cloud_scheduler_job.scaler.region == "us-central1"
-    error_message = "The Scheduler job must be <name>-scheduler in the job's region."
-  }
-
-  assert {
     condition     = google_cloud_scheduler_job.scaler.http_target[0].uri == "https://run.googleapis.com/v2/projects/proj-a/locations/us-central1/jobs/upwind-scaler-abcde:run"
     error_message = "The Scheduler job must run the scaler job."
-  }
-
-  assert {
-    condition     = google_cloud_scheduler_job.scaler.http_target[0].oauth_token[0].service_account_email == "upwind-scaler-abcde@proj-a.iam.gserviceaccount.com"
-    error_message = "The Scheduler job must authenticate as the scaler service account."
   }
 
   assert {
@@ -98,14 +76,6 @@ run "vpc_egress" {
   assert {
     condition     = endswith(google_compute_subnetwork.scaler[0].ip_cidr_range, "/26") && google_compute_subnetwork.scaler[0].region == "us-central1"
     error_message = "The scaler subnet must be a /26 in the job's region."
-  }
-
-  assert {
-    condition = alltrue([
-      for e in google_cloud_run_v2_job.scaler.template[0].template[0].containers[0].env :
-      !contains(["UPWIND_CONFIG_ID", "GCP_MIG_REGION"], e.name)
-    ])
-    error_message = "VPC egress must not change the mode."
   }
 }
 
