@@ -205,11 +205,11 @@ ENVEOF
   }
 
   scheduling {
-    preemptible                 = true
-    automatic_restart           = false
-    on_host_maintenance         = "TERMINATE"
-    provisioning_model          = "SPOT"
-    instance_termination_action = "STOP"
+    preemptible                 = !var.worker_on_demand
+    automatic_restart           = var.worker_on_demand
+    on_host_maintenance         = var.worker_on_demand ? "MIGRATE" : "TERMINATE"
+    provisioning_model          = var.worker_on_demand ? "STANDARD" : "SPOT"
+    instance_termination_action = var.worker_on_demand ? null : "STOP"
   }
 
   # Boot disk
@@ -443,11 +443,11 @@ ENVEOF
   }
 
   scheduling {
-    preemptible                 = true
-    automatic_restart           = false
-    on_host_maintenance         = "TERMINATE"
-    provisioning_model          = "SPOT"
-    instance_termination_action = "STOP"
+    preemptible                 = !var.dspm_worker_on_demand
+    automatic_restart           = var.dspm_worker_on_demand
+    on_host_maintenance         = var.dspm_worker_on_demand ? "MIGRATE" : "TERMINATE"
+    provisioning_model          = var.dspm_worker_on_demand ? "STANDARD" : "SPOT"
+    instance_termination_action = var.dspm_worker_on_demand ? null : "STOP"
   }
 
   # Boot disk

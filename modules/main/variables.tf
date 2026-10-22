@@ -195,6 +195,12 @@ variable "machine_type" {
   default     = "e2-highmem-2"
 }
 
+variable "worker_on_demand" {
+  type        = bool
+  description = "Run workers on standard (on-demand) VMs instead of Spot, so long scans are not preempted."
+  default     = false
+}
+
 variable "boot_image" {
   type        = string
   description = "The source image to use for instances."
@@ -228,6 +234,12 @@ variable "target_size" {
 variable "dspm_enabled" {
   type        = bool
   description = "Enable DSPM (Data Security Posture Management). If false, DSPM MIG will not be created."
+  default     = false
+}
+
+variable "dspm_worker_on_demand" {
+  type        = bool
+  description = "Run DSPM workers on standard (on-demand) VMs instead of Spot."
   default     = false
 }
 
