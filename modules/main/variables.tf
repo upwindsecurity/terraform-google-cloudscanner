@@ -237,6 +237,12 @@ variable "dspm_enabled" {
   default     = false
 }
 
+variable "dspm_worker_on_demand" {
+  type        = bool
+  description = "Run DSPM workers on standard (on-demand) VMs instead of Spot."
+  default     = false
+}
+
 ### Network related
 
 variable "custom_network" {
