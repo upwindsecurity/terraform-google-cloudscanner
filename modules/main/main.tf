@@ -1,7 +1,10 @@
 locals {
   dev_scaler_image  = "us-east1-docker.pkg.dev/upwindsecurity/images-dev/cloudscanner/scaler:latest"
   prod_scaler_image = "us-east1-docker.pkg.dev/upwindsecurity/images/cloudscanner/scaler:latest"
-  project           = var.upwind_orchestrator_project
+  project           = var.is_saas ? var.saas_project : var.upwind_orchestrator_project
+  network_project   = var.network_project != "" ? var.network_project : local.project
+  # A subnet shared from another project needs networkUser granted to this project's agents.
+  grant_subnet_network_user = var.custom_network != "" && var.custom_subnet != "" && local.network_project != local.project
   # Sanitize the org_id to be used in resource names
   # SA names can't have underscores and have a small limit on length...
   # Additionally they have to end with a lowercase letter or number......
@@ -287,6 +290,8 @@ resource "google_compute_region_instance_group_manager" "cloudscanner" {
     # The scaler adjusts target_size at runtime; don't fight it on subsequent applies.
     ignore_changes = [target_size]
   }
+
+  depends_on = [google_compute_subnetwork_iam_member.cloudscanner_network_user]
 }
 
 # DSPM Instance Templates
@@ -526,6 +531,8 @@ resource "google_compute_region_instance_group_manager" "cloudscanner_dspm" {
     # The scaler adjusts target_size at runtime; don't fight it on subsequent applies.
     ignore_changes = [target_size]
   }
+
+  depends_on = [google_compute_subnetwork_iam_member.cloudscanner_network_user]
 }
 
 # Scaler Function
@@ -630,6 +637,8 @@ resource "google_cloud_run_v2_job" "scaler_function" {
     parallelism = 1
     task_count  = 1
   }
+
+  depends_on = [google_compute_subnetwork_iam_member.scaler_network_user]
 }
 
 # Scheduler for running the scaler function
