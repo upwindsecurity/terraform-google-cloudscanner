@@ -88,6 +88,7 @@ No modules.
 | <a name="input_upwind_infra_region"></a> [upwind\_infra\_region](#input\_upwind\_infra\_region) | The Upwind infrastructure region where the resources are created. | `string` | `"us"` | no |
 | <a name="input_upwind_orchestrator_project"></a> [upwind\_orchestrator\_project](#input\_upwind\_orchestrator\_project) | The main Google Cloud project where the resources are created. | `string` | n/a | yes |
 | <a name="input_upwind_organization_id"></a> [upwind\_organization\_id](#input\_upwind\_organization\_id) | The Upwind Organization ID. | `string` | n/a | yes |
+| <a name="input_worker_on_demand"></a> [worker\_on\_demand](#input\_worker\_on\_demand) | Run workers on standard (on-demand) VMs instead of Spot, so long scans are not preempted. | `bool` | `false` | no |
 
 ## Outputs
 

@@ -195,6 +195,12 @@ variable "machine_type" {
   default     = "e2-highmem-2"
 }
 
+variable "worker_on_demand" {
+  type        = bool
+  description = "Run workers on standard (on-demand) VMs instead of Spot, so long scans are not preempted."
+  default     = false
+}
+
 variable "boot_image" {
   type        = string
   description = "The source image to use for instances."
