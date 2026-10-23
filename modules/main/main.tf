@@ -149,7 +149,7 @@ resource "google_compute_region_instance_template" "cloudscanner_inst_templates"
     export UPWIND_CLOUDSCANNER_ID=${var.scanner_id}
     export GCP_SAAS_WORKER=${var.is_saas}
     export GCP_SAAS_WORKER_PROJECT=${var.saas_project}
-    export GCP_SAAS_SCANNED_ACCOUNT=${var.upwind_orchestrator_project}
+    export GCP_SAAS_ORCHESTRATOR=${var.upwind_orchestrator_project}
 
     # Write credentials to file for systemd service (matching regular ASG behavior)
     echo "Writing credentials to /etc/cloudscanner.env for systemd service..."
@@ -164,7 +164,7 @@ GCP_CLOUDSCANNER_SCALER_SA_EMAIL=$GCP_CLOUDSCANNER_SCALER_SA_EMAIL
 UPWIND_CLOUDSCANNER_ID=$UPWIND_CLOUDSCANNER_ID
 GCP_SAAS_WORKER=$GCP_SAAS_WORKER
 GCP_SAAS_WORKER_PROJECT=$GCP_SAAS_WORKER_PROJECT
-GCP_SAAS_SCANNED_ACCOUNT=$GCP_SAAS_SCANNED_ACCOUNT
+GCP_SAAS_ORCHESTRATOR=$GCP_SAAS_ORCHESTRATOR
 ENVEOF
     chmod 600 /etc/cloudscanner.env
     echo "Credentials written to /etc/cloudscanner.env"
@@ -395,7 +395,7 @@ resource "google_compute_region_instance_template" "cloudscanner_dspm_inst_templ
     export UPWIND_CLOUDSCANNER_ID=${var.scanner_id}
     export GCP_SAAS_WORKER=${var.is_saas}
     export GCP_SAAS_WORKER_PROJECT=${var.saas_project}
-    export GCP_SAAS_SCANNED_ACCOUNT=${var.upwind_orchestrator_project}
+    export GCP_SAAS_ORCHESTRATOR=${var.upwind_orchestrator_project}
 
     # Write credentials to file for systemd service (matching regular ASG behavior)
     echo "Writing credentials to /etc/cloudscanner.env for systemd service..."
@@ -410,7 +410,7 @@ GCP_CLOUDSCANNER_SCALER_SA_EMAIL=$GCP_CLOUDSCANNER_SCALER_SA_EMAIL
 UPWIND_CLOUDSCANNER_ID=$UPWIND_CLOUDSCANNER_ID
 GCP_SAAS_WORKER=$GCP_SAAS_WORKER
 GCP_SAAS_WORKER_PROJECT=$GCP_SAAS_WORKER_PROJECT
-GCP_SAAS_SCANNED_ACCOUNT=$GCP_SAAS_SCANNED_ACCOUNT
+GCP_SAAS_ORCHESTRATOR=$GCP_SAAS_ORCHESTRATOR
 ENVEOF
     chmod 600 /etc/cloudscanner.env
     echo "Credentials written to /etc/cloudscanner.env"
