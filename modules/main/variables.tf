@@ -42,6 +42,12 @@ variable "public_uri_domain" {
   }
 }
 
+variable "create_scaler" {
+  type        = bool
+  description = "Create this scanner's own scaler Cloud Run job and Scheduler job. Set to false when the project's scanners are scaled by modules/scaler instead: applying with false removes this scanner's scaler."
+  default     = true
+}
+
 variable "scaler_function_schedule" {
   type        = string
   description = "The schedule to use for the scaler function."
