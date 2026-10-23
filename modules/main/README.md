@@ -12,6 +12,8 @@ The module creates:
 - IAM roles and service account bindings
 - Secret Manager integration for credentials
 
+To scale every scanner in a project from one job instead, apply [modules/scaler](../scaler/) once for the project and set `create_scaler = false` here.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -69,11 +71,13 @@ No modules.
 | <a name="input_boot_image"></a> [boot\_image](#input\_boot\_image) | The source image to use for instances. | `string` | `"ubuntu-os-cloud/ubuntu-2604-lts-amd64"` | no |
 | <a name="input_cloudscanner_sa_email"></a> [cloudscanner\_sa\_email](#input\_cloudscanner\_sa\_email) | The cloudscanner service account email to use. | `string` | n/a | yes |
 | <a name="input_cloudscanner_scaler_sa_email"></a> [cloudscanner\_scaler\_sa\_email](#input\_cloudscanner\_scaler\_sa\_email) | The cloudscanner scaler service account email to use. | `string` | n/a | yes |
+| <a name="input_create_scaler"></a> [create\_scaler](#input\_create\_scaler) | Create this scanner's own scaler Cloud Run job and Scheduler job. Set to false when the project's scanners are scaled by modules/scaler instead: applying with false removes this scanner's scaler. | `bool` | `true` | no |
 | <a name="input_custom_network"></a> [custom\_network](#input\_custom\_network) | The name of a custom network to use. | `string` | `""` | no |
 | <a name="input_custom_subnet"></a> [custom\_subnet](#input\_custom\_subnet) | The name of a custom subnetwork to use. | `string` | `""` | no |
 | <a name="input_default_labels"></a> [default\_labels](#input\_default\_labels) | Default labels applied to all resources (can be overridden) | `map(string)` | <pre>{<br/>  "component": "upwind",<br/>  "managed_by": "terraform"<br/>}</pre> | no |
 | <a name="input_default_scheduler_region"></a> [default\_scheduler\_region](#input\_default\_scheduler\_region) | The default region to use for the Cloud Scheduler job if no specific region is provided. | `string` | `"us-central1"` | no |
 | <a name="input_dspm_enabled"></a> [dspm\_enabled](#input\_dspm\_enabled) | Enable DSPM (Data Security Posture Management). If false, DSPM MIG will not be created. | `bool` | `false` | no |
+| <a name="input_dspm_worker_on_demand"></a> [dspm\_worker\_on\_demand](#input\_dspm\_worker\_on\_demand) | Run DSPM workers on standard (on-demand) VMs instead of Spot. | `bool` | `false` | no |
 | <a name="input_enable_iap_ssh"></a> [enable\_iap\_ssh](#input\_enable\_iap\_ssh) | Whether to enable SSH access via IAP | `bool` | `true` | no |
 | <a name="input_enable_secure_boot"></a> [enable\_secure\_boot](#input\_enable\_secure\_boot) | Enable Secure Boot on scanner instances. Requires a UEFI\_COMPATIBLE, signed boot image (the default Ubuntu LTS image qualifies). vTPM and integrity monitoring are always enabled. | `bool` | `true` | no |
 | <a name="input_is_saas"></a> [is\_saas](#input\_is\_saas) | Deploy the scanner into the Upwind SaaS project (saas\_project) instead of the customer's orchestrator project. | `bool` | `false` | no |
@@ -94,6 +98,7 @@ No modules.
 | <a name="input_upwind_infra_region"></a> [upwind\_infra\_region](#input\_upwind\_infra\_region) | The Upwind infrastructure region where the resources are created. | `string` | `"us"` | no |
 | <a name="input_upwind_orchestrator_project"></a> [upwind\_orchestrator\_project](#input\_upwind\_orchestrator\_project) | The main Google Cloud project where the resources are created. | `string` | n/a | yes |
 | <a name="input_upwind_organization_id"></a> [upwind\_organization\_id](#input\_upwind\_organization\_id) | The Upwind Organization ID. | `string` | n/a | yes |
+| <a name="input_worker_on_demand"></a> [worker\_on\_demand](#input\_worker\_on\_demand) | Run workers on standard (on-demand) VMs instead of Spot, so long scans are not preempted. | `bool` | `false` | no |
 
 ## Outputs
 
