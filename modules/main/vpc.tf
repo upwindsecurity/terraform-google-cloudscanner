@@ -4,13 +4,13 @@ locals {
 
 data "google_compute_network" "custom_network" {
   count   = var.custom_network != "" ? 1 : 0
-  project = local.project
+  project = local.network_project
   name    = var.custom_network
 }
 
 data "google_compute_subnetwork" "custom_subnet" {
   count   = var.custom_network != "" && var.custom_subnet != "" ? 1 : 0
-  project = local.project
+  project = local.network_project
   name    = var.custom_subnet
   region  = var.region
 }

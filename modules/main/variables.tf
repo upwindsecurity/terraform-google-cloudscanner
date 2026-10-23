@@ -119,6 +119,23 @@ variable "upwind_orchestrator_project" {
   }
 }
 
+variable "is_saas" {
+  type        = bool
+  description = "Deploy the scanner into the Upwind SaaS project (saas_project) instead of the customer's orchestrator project."
+  default     = false
+}
+
+variable "saas_project" {
+  type        = string
+  description = "The Upwind-owned Google Cloud project the scanner is deployed in when is_saas is true."
+  default     = ""
+
+  validation {
+    condition     = !var.is_saas || can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]$", var.saas_project))
+    error_message = "saas_project must be a valid project ID when is_saas is true."
+  }
+}
+
 variable "region" {
   type        = string
   description = "The region that all resources will be created in."
@@ -259,6 +276,12 @@ variable "custom_network" {
 
 variable "custom_subnet" {
   description = "The name of a custom subnetwork to use."
+  type        = string
+  default     = ""
+}
+
+variable "network_project" {
+  description = "The project that holds custom_network and custom_subnet, such as a Shared VPC host project. Defaults to the project the scanner is deployed in. When it differs, the scanner project's service agents are granted roles/compute.networkUser on custom_subnet."
   type        = string
   default     = ""
 }

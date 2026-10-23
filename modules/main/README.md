@@ -49,9 +49,12 @@ No modules.
 | [google_compute_router.cloudscanner_router](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_router) | resource |
 | [google_compute_router_nat.cloudscanner_router_nat](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_router_nat) | resource |
 | [google_compute_subnetwork.cloudscanner_subnetwork](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork) | resource |
+| [google_compute_subnetwork_iam_member.cloudscanner_network_user](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork_iam) | resource |
+| [google_compute_subnetwork_iam_member.scaler_network_user](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork_iam) | resource |
 | [null_resource.always_run](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [google_compute_network.custom_network](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/compute_network) | data source |
 | [google_compute_subnetwork.custom_subnet](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/compute_subnetwork) | data source |
+| [google_project.scanner](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/project) | data source |
 | [google_secret_manager_secret.scanner_client_id](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/secret_manager_secret) | data source |
 | [google_secret_manager_secret.scanner_client_secret](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/secret_manager_secret) | data source |
 | [google_service_account.cloudscanner_sa](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/service_account) | data source |
@@ -77,11 +80,14 @@ No modules.
 | <a name="input_dspm_worker_on_demand"></a> [dspm\_worker\_on\_demand](#input\_dspm\_worker\_on\_demand) | Run DSPM workers on standard (on-demand) VMs instead of Spot. | `bool` | `false` | no |
 | <a name="input_enable_iap_ssh"></a> [enable\_iap\_ssh](#input\_enable\_iap\_ssh) | Whether to enable SSH access via IAP | `bool` | `true` | no |
 | <a name="input_enable_secure_boot"></a> [enable\_secure\_boot](#input\_enable\_secure\_boot) | Enable Secure Boot on scanner instances. Requires a UEFI\_COMPATIBLE, signed boot image (the default Ubuntu LTS image qualifies). vTPM and integrity monitoring are always enabled. | `bool` | `true` | no |
+| <a name="input_is_saas"></a> [is\_saas](#input\_is\_saas) | Deploy the scanner into the Upwind SaaS project (saas\_project) instead of the customer's orchestrator project. | `bool` | `false` | no |
 | <a name="input_labels"></a> [labels](#input\_labels) | A map of labels to apply to all resources | `map(string)` | `{}` | no |
 | <a name="input_machine_type"></a> [machine\_type](#input\_machine\_type) | The machine type to use. | `string` | `"e2-highmem-2"` | no |
 | <a name="input_min_nat_ports_per_vm"></a> [min\_nat\_ports\_per\_vm](#input\_min\_nat\_ports\_per\_vm) | Minimum number of ports allocated to each VM for NAT service | `number` | `64` | no |
+| <a name="input_network_project"></a> [network\_project](#input\_network\_project) | The project that holds custom\_network and custom\_subnet, such as a Shared VPC host project. Defaults to the project the scanner is deployed in. When it differs, the scanner project's service agents are granted roles/compute.networkUser on custom\_subnet. | `string` | `""` | no |
 | <a name="input_public_uri_domain"></a> [public\_uri\_domain](#input\_public\_uri\_domain) | The public URI domain. | `string` | `"upwind.io"` | no |
 | <a name="input_region"></a> [region](#input\_region) | The region that all resources will be created in. | `string` | `"us-central1"` | no |
+| <a name="input_saas_project"></a> [saas\_project](#input\_saas\_project) | The Upwind-owned Google Cloud project the scanner is deployed in when is\_saas is true. | `string` | `""` | no |
 | <a name="input_scaler_function_schedule"></a> [scaler\_function\_schedule](#input\_scaler\_function\_schedule) | The schedule to use for the scaler function. | `string` | `"*/10 * * * *"` | no |
 | <a name="input_scaler_vpc_egress"></a> [scaler\_vpc\_egress](#input\_scaler\_vpc\_egress) | Egress setting for the scaler function's Direct VPC egress, used when scaler\_vpc\_egress\_enabled is true. | `string` | `"ALL_TRAFFIC"` | no |
 | <a name="input_scaler_vpc_egress_enabled"></a> [scaler\_vpc\_egress\_enabled](#input\_scaler\_vpc\_egress\_enabled) | Attach the scaler function to the VPC with Direct VPC egress. Only needed where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting: it delays the scaler's startup and holds addresses in the subnet for hours after the scaler is deleted, blocking network teardown. | `bool` | `false` | no |

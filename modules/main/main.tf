@@ -1,7 +1,10 @@
 locals {
   dev_scaler_image  = "us-east1-docker.pkg.dev/upwindsecurity/images-dev/cloudscanner/scaler:latest"
   prod_scaler_image = "us-east1-docker.pkg.dev/upwindsecurity/images/cloudscanner/scaler:latest"
-  project           = var.upwind_orchestrator_project
+  project           = var.is_saas ? var.saas_project : var.upwind_orchestrator_project
+  network_project   = var.network_project != "" ? var.network_project : local.project
+  # A subnet shared from another project needs networkUser granted to this project's agents.
+  grant_subnet_network_user = var.custom_network != "" && var.custom_subnet != "" && local.network_project != local.project
   # Sanitize the org_id to be used in resource names
   # SA names can't have underscores and have a small limit on length...
   # Additionally they have to end with a lowercase letter or number......
@@ -144,6 +147,9 @@ resource "google_compute_region_instance_template" "cloudscanner_inst_templates"
     export GCP_CLOUDSCANNER_SA_EMAIL=${local.cloudscanner_sa.email}
     export GCP_CLOUDSCANNER_SCALER_SA_EMAIL=${local.cloudscanner_scaler_sa.email}
     export UPWIND_CLOUDSCANNER_ID=${var.scanner_id}
+    export GCP_SAAS_WORKER=${var.is_saas}
+    export GCP_SAAS_WORKER_PROJECT=${var.saas_project}
+    export GCP_SAAS_ORCHESTRATOR=${var.upwind_orchestrator_project}
 
     # Write credentials to file for systemd service (matching regular ASG behavior)
     echo "Writing credentials to /etc/cloudscanner.env for systemd service..."
@@ -156,6 +162,9 @@ GCP_REGION=$GCP_REGION
 GCP_CLOUDSCANNER_SA_EMAIL=$GCP_CLOUDSCANNER_SA_EMAIL
 GCP_CLOUDSCANNER_SCALER_SA_EMAIL=$GCP_CLOUDSCANNER_SCALER_SA_EMAIL
 UPWIND_CLOUDSCANNER_ID=$UPWIND_CLOUDSCANNER_ID
+GCP_SAAS_WORKER=$GCP_SAAS_WORKER
+GCP_SAAS_WORKER_PROJECT=$GCP_SAAS_WORKER_PROJECT
+GCP_SAAS_ORCHESTRATOR=$GCP_SAAS_ORCHESTRATOR
 ENVEOF
     chmod 600 /etc/cloudscanner.env
     echo "Credentials written to /etc/cloudscanner.env"
@@ -287,6 +296,8 @@ resource "google_compute_region_instance_group_manager" "cloudscanner" {
     # The scaler adjusts target_size at runtime; don't fight it on subsequent applies.
     ignore_changes = [target_size]
   }
+
+  depends_on = [google_compute_subnetwork_iam_member.cloudscanner_network_user]
 }
 
 # DSPM Instance Templates
@@ -382,6 +393,9 @@ resource "google_compute_region_instance_template" "cloudscanner_dspm_inst_templ
     export GCP_CLOUDSCANNER_SA_EMAIL=${local.cloudscanner_sa.email}
     export GCP_CLOUDSCANNER_SCALER_SA_EMAIL=${local.cloudscanner_scaler_sa.email}
     export UPWIND_CLOUDSCANNER_ID=${var.scanner_id}
+    export GCP_SAAS_WORKER=${var.is_saas}
+    export GCP_SAAS_WORKER_PROJECT=${var.saas_project}
+    export GCP_SAAS_ORCHESTRATOR=${var.upwind_orchestrator_project}
 
     # Write credentials to file for systemd service (matching regular ASG behavior)
     echo "Writing credentials to /etc/cloudscanner.env for systemd service..."
@@ -394,6 +408,9 @@ GCP_REGION=$GCP_REGION
 GCP_CLOUDSCANNER_SA_EMAIL=$GCP_CLOUDSCANNER_SA_EMAIL
 GCP_CLOUDSCANNER_SCALER_SA_EMAIL=$GCP_CLOUDSCANNER_SCALER_SA_EMAIL
 UPWIND_CLOUDSCANNER_ID=$UPWIND_CLOUDSCANNER_ID
+GCP_SAAS_WORKER=$GCP_SAAS_WORKER
+GCP_SAAS_WORKER_PROJECT=$GCP_SAAS_WORKER_PROJECT
+GCP_SAAS_ORCHESTRATOR=$GCP_SAAS_ORCHESTRATOR
 ENVEOF
     chmod 600 /etc/cloudscanner.env
     echo "Credentials written to /etc/cloudscanner.env"
@@ -526,12 +543,15 @@ resource "google_compute_region_instance_group_manager" "cloudscanner_dspm" {
     # The scaler adjusts target_size at runtime; don't fight it on subsequent applies.
     ignore_changes = [target_size]
   }
+
+  depends_on = [google_compute_subnetwork_iam_member.cloudscanner_network_user]
 }
 
 # Scaler Function
 resource "google_cloud_run_v2_job" "scaler_function" {
   count = var.create_scaler ? 1 : 0
 
+  project             = local.project
   name                = "upwind-scaler-function-${var.scanner_id}"
   location            = var.region
   deletion_protection = false
@@ -632,6 +652,8 @@ resource "google_cloud_run_v2_job" "scaler_function" {
     parallelism = 1
     task_count  = 1
   }
+
+  depends_on = [google_compute_subnetwork_iam_member.scaler_network_user]
 }
 
 # Scheduler for running the scaler function
@@ -641,6 +663,7 @@ resource "google_cloud_run_v2_job" "scaler_function" {
 resource "google_cloud_scheduler_job" "scaler_scheduler_job" {
   count = var.create_scaler ? 1 : 0
 
+  project  = local.project
   name     = "upwind-scaler-scheduler-job-${var.scanner_id}"
   region   = var.scheduler_region != "" ? var.scheduler_region : var.default_scheduler_region
   schedule = var.scaler_function_schedule
