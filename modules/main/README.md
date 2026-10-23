@@ -77,12 +77,13 @@ No modules.
 | <a name="input_default_labels"></a> [default\_labels](#input\_default\_labels) | Default labels applied to all resources (can be overridden) | `map(string)` | <pre>{<br/>  "component": "upwind",<br/>  "managed_by": "terraform"<br/>}</pre> | no |
 | <a name="input_default_scheduler_region"></a> [default\_scheduler\_region](#input\_default\_scheduler\_region) | The default region to use for the Cloud Scheduler job if no specific region is provided. | `string` | `"us-central1"` | no |
 | <a name="input_dspm_enabled"></a> [dspm\_enabled](#input\_dspm\_enabled) | Enable DSPM (Data Security Posture Management). If false, DSPM MIG will not be created. | `bool` | `false` | no |
+| <a name="input_dspm_machine_type"></a> [dspm\_machine\_type](#input\_dspm\_machine\_type) | The machine type to use for DSPM workers. | `string` | `"e2-highmem-2"` | no |
 | <a name="input_dspm_worker_on_demand"></a> [dspm\_worker\_on\_demand](#input\_dspm\_worker\_on\_demand) | Run DSPM workers on standard (on-demand) VMs instead of Spot. | `bool` | `false` | no |
 | <a name="input_enable_iap_ssh"></a> [enable\_iap\_ssh](#input\_enable\_iap\_ssh) | Whether to enable SSH access via IAP | `bool` | `true` | no |
 | <a name="input_enable_secure_boot"></a> [enable\_secure\_boot](#input\_enable\_secure\_boot) | Enable Secure Boot on scanner instances. Requires a UEFI\_COMPATIBLE, signed boot image (the default Ubuntu LTS image qualifies). vTPM and integrity monitoring are always enabled. | `bool` | `true` | no |
 | <a name="input_is_saas"></a> [is\_saas](#input\_is\_saas) | Deploy the scanner into the Upwind SaaS project (saas\_project) instead of the customer's orchestrator project. | `bool` | `false` | no |
 | <a name="input_labels"></a> [labels](#input\_labels) | A map of labels to apply to all resources | `map(string)` | `{}` | no |
-| <a name="input_machine_type"></a> [machine\_type](#input\_machine\_type) | The machine type to use. | `string` | `"e2-highmem-2"` | no |
+| <a name="input_machine_type"></a> [machine\_type](#input\_machine\_type) | The machine type to use for scanner workers. | `string` | `"e2-highmem-2"` | no |
 | <a name="input_min_nat_ports_per_vm"></a> [min\_nat\_ports\_per\_vm](#input\_min\_nat\_ports\_per\_vm) | Minimum number of ports allocated to each VM for NAT service | `number` | `64` | no |
 | <a name="input_network_project"></a> [network\_project](#input\_network\_project) | The project that holds custom\_network and custom\_subnet, such as a Shared VPC host project. Defaults to the project the scanner is deployed in. When it differs, the scanner project's service agents are granted roles/compute.networkUser on custom\_subnet. | `string` | `""` | no |
 | <a name="input_public_uri_domain"></a> [public\_uri\_domain](#input\_public\_uri\_domain) | The public URI domain. | `string` | `"upwind.io"` | no |

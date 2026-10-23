@@ -214,7 +214,7 @@ variable "scheduler_region" {
 
 variable "machine_type" {
   type        = string
-  description = "The machine type to use."
+  description = "The machine type to use for scanner workers."
   default     = "e2-highmem-2"
 }
 
@@ -264,6 +264,12 @@ variable "dspm_worker_on_demand" {
   type        = bool
   description = "Run DSPM workers on standard (on-demand) VMs instead of Spot."
   default     = false
+}
+
+variable "dspm_machine_type" {
+  type        = string
+  description = "The machine type to use for DSPM workers."
+  default     = "e2-highmem-2"
 }
 
 ### Network related

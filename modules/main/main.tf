@@ -307,7 +307,7 @@ resource "google_compute_region_instance_template" "cloudscanner_dspm_inst_templ
   count        = var.dspm_enabled ? 2 : 0
   project      = local.project
   name_prefix  = local.dspm_inst_template_name_prefix
-  machine_type = var.machine_type
+  machine_type = var.dspm_machine_type
   region       = var.region
 
   # Label is used for IsNotCloudScannerInstance
