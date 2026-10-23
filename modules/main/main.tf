@@ -150,6 +150,7 @@ resource "google_compute_region_instance_template" "cloudscanner_inst_templates"
     export GCP_SAAS_WORKER=${var.is_saas}
     export GCP_SAAS_WORKER_PROJECT=${var.saas_project}
     export GCP_SAAS_ORCHESTRATOR=${var.upwind_orchestrator_project}
+    export UPWIND_GCP_SCAN_DISK_TYPE=${var.scan_disk_type}
 
     # Write credentials to file for systemd service (matching regular ASG behavior)
     echo "Writing credentials to /etc/cloudscanner.env for systemd service..."
@@ -165,6 +166,7 @@ UPWIND_CLOUDSCANNER_ID=$UPWIND_CLOUDSCANNER_ID
 GCP_SAAS_WORKER=$GCP_SAAS_WORKER
 GCP_SAAS_WORKER_PROJECT=$GCP_SAAS_WORKER_PROJECT
 GCP_SAAS_ORCHESTRATOR=$GCP_SAAS_ORCHESTRATOR
+UPWIND_GCP_SCAN_DISK_TYPE=$UPWIND_GCP_SCAN_DISK_TYPE
 ENVEOF
     chmod 600 /etc/cloudscanner.env
     echo "Credentials written to /etc/cloudscanner.env"
@@ -173,6 +175,7 @@ ENVEOF
     echo "  UPWIND_INFRA_REGION=$UPWIND_INFRA_REGION"
     echo "  GCP_REGION=$GCP_REGION"
     echo "  UPWIND_CLOUDSCANNER_ID=$UPWIND_CLOUDSCANNER_ID"
+    echo "  UPWIND_GCP_SCAN_DISK_TYPE=$UPWIND_GCP_SCAN_DISK_TYPE"
 
     echo "Getting Cloud Scanner install script for ${var.scanner_id} ..."
     if ! curl -f -L https://get.${var.public_uri_domain}/cloudscanner.sh -o cloudscanner.sh; then

@@ -218,6 +218,17 @@ variable "machine_type" {
   default     = "e2-highmem-2"
 }
 
+variable "scan_disk_type" {
+  type        = string
+  description = "The disk type scanner workers restore snapshots as. SSD-backed types count against the region's SSD_TOTAL_GB quota."
+  default     = "pd-standard"
+
+  validation {
+    condition     = contains(["pd-standard", "pd-balanced", "pd-ssd"], var.scan_disk_type)
+    error_message = "The scan disk type must be pd-standard, pd-balanced or pd-ssd."
+  }
+}
+
 variable "worker_on_demand" {
   type        = bool
   description = "Run workers on standard (on-demand) VMs instead of Spot, so long scans are not preempted."
