@@ -16,6 +16,7 @@ This repository contains the following Terraform modules:
 
 - [modules/main/](./modules/main/) - Core Cloud Scanner module with complete infrastructure setup
 - [modules/scaler/](./modules/scaler/) - Per-project scaler (Cloud Run job + Scheduler job) for every scanner in the project
+- [modules/cleaner/](./modules/cleaner/) - Per-project GCP SaaS cleaner (Cloud Run job + Scheduler job) for the disks and snapshots scans leave behind
 
 ## Examples
 
