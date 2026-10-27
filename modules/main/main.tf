@@ -660,15 +660,15 @@ resource "google_cloud_run_v2_job" "scaler_function" {
 }
 
 # Scheduler for running the scaler function
-# This will be deployed in ONE region only. By default it will be in us-central1 unless overridden by the user.
-# Multiple scheduler jobs in the same region will be created if multiple scanners are deployed in the same region.
+# Deployed in the scanner's region when Cloud Scheduler supports it (see local.scheduler_region), so an org
+# policy that allows the scanner also allows its Scheduler job.
 # Each scheduler job can have a single HTTP target, so we create a separate job for each scanner.
 resource "google_cloud_scheduler_job" "scaler_scheduler_job" {
   count = var.create_scaler ? 1 : 0
 
   project  = local.project
   name     = "upwind-scaler-scheduler-job-${var.scanner_id}"
-  region   = var.scheduler_region != "" ? var.scheduler_region : var.default_scheduler_region
+  region   = local.scheduler_region
   schedule = var.scaler_function_schedule
 
 

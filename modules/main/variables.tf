@@ -173,19 +173,38 @@ locals {
   # Supported Scheduler regions, see https://cloud.google.com/scheduler/docs/locations
   valid_scheduler_regions = [
     # Americas
-    "northamerica-northeast1", "southamerica-east1",
-    "us-central1", "us-east1", "us-east4", "us-west1", "us-west2", "us-west3", "us-west4",
+    "northamerica-northeast1", "northamerica-northeast2", "southamerica-east1",
+    "us-central1", "us-east1", "us-east4", "us-south1", "us-west1", "us-west2", "us-west3", "us-west4",
 
     # Europe
-    "europe-central2", "europe-west1", "europe-west2", "europe-west3", "europe-west6",
+    "europe-central2", "europe-west1", "europe-west2", "europe-west3", "europe-west4", "europe-west6",
+    "europe-west8", "europe-west9", "europe-west12",
 
     # Asia Pacific
     "asia-east1", "asia-east2", "asia-northeast1", "asia-northeast2", "asia-northeast3",
-    "asia-south1", "asia-southeast1", "asia-southeast2",
+    "asia-south1", "asia-south2", "asia-southeast1", "asia-southeast2", "asia-southeast3",
 
     # Australia
-    "australia-southeast1"
+    "australia-southeast1",
+
+    # Middle East
+    "me-central1", "me-central2", "me-west1"
   ]
+
+  # Same-continent Scheduler region for a scanner region Cloud Scheduler does not support, so an org
+  # policy that limits resource locations to the scanner's continent still allows the job.
+  scheduler_fallback_regions = {
+    europe    = "europe-west1"
+    me        = "me-west1"
+    asia      = "asia-southeast1"
+    australia = "australia-southeast1"
+  }
+
+  scheduler_region = (
+    var.scheduler_region != "" ? var.scheduler_region :
+    contains(local.valid_scheduler_regions, var.region) ? var.region :
+    lookup(local.scheduler_fallback_regions, split("-", var.region)[0], var.default_scheduler_region)
+  )
 }
 
 variable "default_scheduler_region" {
@@ -201,7 +220,7 @@ variable "default_scheduler_region" {
 
 variable "scheduler_region" {
   type        = string
-  description = "The region to use for the Cloud Scheduler job. If not set, the default_scheduler_region will be used."
+  description = "The region to use for the Cloud Scheduler job. If not set, the scanner's region is used when Cloud Scheduler supports it, else a region on the same continent, else default_scheduler_region."
   default     = ""
 
   validation {
