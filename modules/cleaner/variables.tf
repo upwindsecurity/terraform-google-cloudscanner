@@ -74,11 +74,6 @@ variable "upwind_infra_region" {
   type        = string
   description = "The Upwind infrastructure region the cleaner reports to."
   default     = "us"
-
-  validation {
-    condition     = can(regex("^(ap|us|eu|me|pdc01|pdc02)$", var.upwind_infra_region))
-    error_message = "The Upwind infrastructure region must be one of 'ap', 'us', 'eu', 'me', 'pdc01' or 'pdc02'."
-  }
 }
 
 ### Google Cloud Related
