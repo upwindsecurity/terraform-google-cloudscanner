@@ -78,7 +78,7 @@ resource "google_cloud_run_v2_job" "cleaner" {
       }
 
       # Retries come from the next scheduled run.
-      max_retries = 1
+      max_retries = 0
       # Above the cleaner's own 240s run budget, so it can stop new deletes and log its summary first.
       timeout = "300s"
 
