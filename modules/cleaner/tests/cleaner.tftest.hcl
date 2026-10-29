@@ -6,7 +6,6 @@ variables {
   service_account_email = "upwind-abcde@hub.iam.gserviceaccount.com"
   client_id_secret      = "upwind-scanner-client-id-abcde"
   client_secret_secret  = "upwind-scanner-client-secret-abcde"
-  access_token          = "x"
 }
 
 run "defaults" {

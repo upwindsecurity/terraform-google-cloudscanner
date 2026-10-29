@@ -85,8 +85,9 @@ variable "upwind_infra_region" {
 ### Google Cloud Related
 
 variable "access_token" {
-  description = "The access token used to authenticate with Google Cloud."
+  description = "An OAuth access token to authenticate with Google Cloud. Leave unset to use the provider's ambient credentials (Application Default Credentials, e.g. from `gcloud auth application-default login` or a CI workload identity)."
   type        = string
+  default     = null
   sensitive   = true
 }
 

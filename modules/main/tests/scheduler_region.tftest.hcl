@@ -4,7 +4,6 @@ mock_provider "null" {}
 variables {
   upwind_organization_id       = "org_abcde"
   scanner_id                   = "ucsc-abc123"
-  access_token                 = "x"
   cloudscanner_sa_email        = "upwind-cs-abcde@proj-a.iam.gserviceaccount.com"
   cloudscanner_scaler_sa_email = "upwind-scaler-abcde@proj-a.iam.gserviceaccount.com"
   upwind_orchestrator_project  = "proj-abc"

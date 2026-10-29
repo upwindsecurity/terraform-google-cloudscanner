@@ -58,7 +58,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_access_token"></a> [access\_token](#input\_access\_token) | The access token used to authenticate with Google Cloud. | `string` | n/a | yes |
+| <a name="input_access_token"></a> [access\_token](#input\_access\_token) | An OAuth access token to authenticate with Google Cloud. Leave unset to use the provider's ambient credentials (Application Default Credentials, e.g. from `gcloud auth application-default login` or a CI workload identity). | `string` | `null` | no |
 | <a name="input_client_id_secret"></a> [client\_id\_secret](#input\_client\_id\_secret) | Secret Manager secret id, in var.project, holding the scanner client id. | `string` | n/a | yes |
 | <a name="input_client_secret_secret"></a> [client\_secret\_secret](#input\_client\_secret\_secret) | Secret Manager secret id, in var.project, holding the scanner client secret. | `string` | n/a | yes |
 | <a name="input_default_labels"></a> [default\_labels](#input\_default\_labels) | Default labels applied to all resources (can be overridden) | `map(string)` | <pre>{<br/>  "component": "upwind",<br/>  "managed_by": "terraform"<br/>}</pre> | no |
