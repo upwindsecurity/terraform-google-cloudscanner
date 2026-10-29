@@ -14,6 +14,23 @@ The module creates:
 
 To scale every scanner in a project from one job instead, apply [modules/scaler](../scaler/) once for the project and set `create_scaler = false` here.
 
+## Authentication and permissions
+
+Leave `access_token` unset to use the provider's ambient credentials: `gcloud auth application-default login`,
+a CI workload identity, or `GOOGLE_APPLICATION_CREDENTIALS`. Set it only to deploy with a short-lived token.
+
+The deploying identity needs, in the project the scanner runs in:
+
+- The permissions of the `CloudScannerDeploymentRole` the Upwind onboarding module creates (compute, networking,
+  Cloud Run, Cloud Scheduler, `iam.serviceAccounts.get` and `iam.serviceAccounts.actAs` on the scanner service accounts)
+- `secretmanager.secrets.get` on the `upwind-scanner-client-id-*` and `upwind-scanner-client-secret-*` secrets, to
+  look them up by name
+- With a subnet shared from another project, `resourcemanager.projects.get` on the scanner project, and
+  `compute.subnetworks.getIamPolicy` and `compute.subnetworks.setIamPolicy` on that subnet
+
+The deploying identity never reads the scanner credentials, so it needs no `secretmanager.versions.access`. The
+scanner instances read them from Secret Manager at boot, as the scanner service account.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -64,7 +81,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_access_token"></a> [access\_token](#input\_access\_token) | The access token used to authenticate with Google Cloud. | `string` | n/a | yes |
+| <a name="input_access_token"></a> [access\_token](#input\_access\_token) | An OAuth access token to authenticate with Google Cloud. Leave unset to use the provider's ambient credentials (Application Default Credentials, e.g. from `gcloud auth application-default login` or a CI workload identity). | `string` | `null` | no |
 | <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | The zones within the region that will be used for zone based resources. | `list(any)` | <pre>[<br/>  "us-central1-a",<br/>  "us-central1-b",<br/>  "us-central1-c"<br/>]</pre> | no |
 | <a name="input_boot_disk_size_gb"></a> [boot\_disk\_size\_gb](#input\_boot\_disk\_size\_gb) | The disk size in GB to use. | `number` | `40` | no |
 | <a name="input_boot_disk_type"></a> [boot\_disk\_type](#input\_boot\_disk\_type) | The disk type to use. | `string` | `"pd-standard"` | no |
