@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.18.0](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.17.0...v1.18.0) (2026-10-29)
+
+### Features
+
+* **UP-11821:** make access_token optional ([#92](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/92)) ([13f1376](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/13f1376e26a2fe65ddc5604ec80db4495399fcf3))
+
 ## [1.9.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.9.0...v1.9.1) (2026-08-18)
 
 ### Bug Fixes
