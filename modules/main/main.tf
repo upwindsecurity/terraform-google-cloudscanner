@@ -147,8 +147,7 @@ resource "google_compute_region_instance_template" "cloudscanner_inst_templates"
     export GCP_CLOUDSCANNER_SA_EMAIL=${local.cloudscanner_sa.email}
     export GCP_CLOUDSCANNER_SCALER_SA_EMAIL=${local.cloudscanner_scaler_sa.email}
     export UPWIND_CLOUDSCANNER_ID=${var.scanner_id}
-    export GCP_SAAS_WORKER=${var.is_saas}
-    export GCP_SAAS_WORKER_PROJECT=${var.saas_project}
+    export UPWIND_IS_SAAS=${var.is_saas ? "1" : ""}
     export GCP_SAAS_ORCHESTRATOR=${var.upwind_orchestrator_project}
     export UPWIND_GCP_SCAN_DISK_TYPE=${var.scan_disk_type}
 
@@ -163,8 +162,6 @@ GCP_REGION=$GCP_REGION
 GCP_CLOUDSCANNER_SA_EMAIL=$GCP_CLOUDSCANNER_SA_EMAIL
 GCP_CLOUDSCANNER_SCALER_SA_EMAIL=$GCP_CLOUDSCANNER_SCALER_SA_EMAIL
 UPWIND_CLOUDSCANNER_ID=$UPWIND_CLOUDSCANNER_ID
-GCP_SAAS_WORKER=$GCP_SAAS_WORKER
-GCP_SAAS_WORKER_PROJECT=$GCP_SAAS_WORKER_PROJECT
 GCP_SAAS_ORCHESTRATOR=$GCP_SAAS_ORCHESTRATOR
 export UPWIND_GCP_SCAN_DISK_TYPE=$UPWIND_GCP_SCAN_DISK_TYPE
 ENVEOF
@@ -396,8 +393,7 @@ resource "google_compute_region_instance_template" "cloudscanner_dspm_inst_templ
     export GCP_CLOUDSCANNER_SA_EMAIL=${local.cloudscanner_sa.email}
     export GCP_CLOUDSCANNER_SCALER_SA_EMAIL=${local.cloudscanner_scaler_sa.email}
     export UPWIND_CLOUDSCANNER_ID=${var.scanner_id}
-    export GCP_SAAS_WORKER=${var.is_saas}
-    export GCP_SAAS_WORKER_PROJECT=${var.saas_project}
+    export UPWIND_IS_SAAS=${var.is_saas ? "1" : ""}
     export GCP_SAAS_ORCHESTRATOR=${var.upwind_orchestrator_project}
 
     # Write credentials to file for systemd service (matching regular ASG behavior)
@@ -411,8 +407,6 @@ GCP_REGION=$GCP_REGION
 GCP_CLOUDSCANNER_SA_EMAIL=$GCP_CLOUDSCANNER_SA_EMAIL
 GCP_CLOUDSCANNER_SCALER_SA_EMAIL=$GCP_CLOUDSCANNER_SCALER_SA_EMAIL
 UPWIND_CLOUDSCANNER_ID=$UPWIND_CLOUDSCANNER_ID
-GCP_SAAS_WORKER=$GCP_SAAS_WORKER
-GCP_SAAS_WORKER_PROJECT=$GCP_SAAS_WORKER_PROJECT
 GCP_SAAS_ORCHESTRATOR=$GCP_SAAS_ORCHESTRATOR
 ENVEOF
     chmod 600 /etc/cloudscanner.env
