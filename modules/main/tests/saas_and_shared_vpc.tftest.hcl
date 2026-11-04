@@ -36,11 +36,10 @@ run "saas_deploys_into_saas_project" {
 
   assert {
     condition = alltrue([for t in concat(google_compute_region_instance_template.cloudscanner_inst_templates, google_compute_region_instance_template.cloudscanner_dspm_inst_templates) :
-      strcontains(t.metadata_startup_script, "export GCP_SAAS_WORKER=true\n") &&
-      strcontains(t.metadata_startup_script, "export GCP_SAAS_WORKER_PROJECT=upwind-saas\n") &&
+      strcontains(t.metadata_startup_script, "export UPWIND_IS_SAAS=1\n") &&
       strcontains(t.metadata_startup_script, "export GCP_SAAS_ORCHESTRATOR=proj-abc\n")
     ])
-    error_message = "Scanner and DSPM workers must be told the SaaS worker and orchestrator projects."
+    error_message = "Scanner and DSPM workers must be told they run as SaaS and the orchestrator project."
   }
 }
 
