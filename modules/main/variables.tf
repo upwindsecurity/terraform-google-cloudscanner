@@ -249,6 +249,12 @@ variable "scan_disk_type" {
   }
 }
 
+variable "scan_volume_sign_key" {
+  type        = string
+  description = "The KMS cryptoKey the worker signs each SaaS scan volume's provenance claim with, so the volume-vetter can verify it (projects/P/locations/L/keyRings/R/cryptoKeys/K). Empty disables signing (self-hosted scanners, which have no vetter)."
+  default     = ""
+}
+
 variable "worker_on_demand" {
   type        = bool
   description = "Run workers on standard (on-demand) VMs instead of Spot, so long scans are not preempted."
