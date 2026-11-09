@@ -60,8 +60,8 @@ run "defaults" {
   }
 
   assert {
-    condition     = length(google_cloud_run_v2_service_iam_member.invoker) == 0 && length(google_project_iam_member.event_receiver) == 0 && length(google_cloud_run_v2_service.vetter.template[0].vpc_access) == 0
-    error_message = "No grants and no VPC egress by default."
+    condition     = length(google_cloud_run_v2_service_iam_member.invoker) == 0 && length(google_project_iam_member.event_receiver) == 0
+    error_message = "No grants by default."
   }
 }
 
@@ -89,16 +89,12 @@ run "dev_delete_mode" {
   }
 }
 
-run "grants_and_egress" {
+run "grants" {
   command = plan
 
   variables {
     grant_invoker        = true
     grant_event_receiver = true
-    vpc_egress = {
-      network    = "projects/proj-a/global/networks/upwind-scaler"
-      subnetwork = "projects/proj-a/regions/us-central1/subnetworks/upwind-scaler"
-    }
   }
 
   assert {
@@ -109,11 +105,6 @@ run "grants_and_egress" {
   assert {
     condition     = google_project_iam_member.event_receiver[0].role == "roles/eventarc.eventReceiver" && google_project_iam_member.event_receiver[0].member == "serviceAccount:upwind-abcde@hub.iam.gserviceaccount.com"
     error_message = "The event-receiver grant must give the service account eventarc.eventReceiver on the project."
-  }
-
-  assert {
-    condition     = google_cloud_run_v2_service.vetter.template[0].vpc_access[0].egress == "PRIVATE_RANGES_ONLY"
-    error_message = "VPC egress must route private ranges only."
   }
 }
 

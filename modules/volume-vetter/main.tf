@@ -82,17 +82,6 @@ resource "google_cloud_run_v2_service" "vetter" {
         }
       }
     }
-
-    dynamic "vpc_access" {
-      for_each = var.vpc_egress == null ? [] : [var.vpc_egress]
-      content {
-        network_interfaces {
-          network    = vpc_access.value.network
-          subnetwork = vpc_access.value.subnetwork
-        }
-        egress = "PRIVATE_RANGES_ONLY"
-      }
-    }
   }
 }
 

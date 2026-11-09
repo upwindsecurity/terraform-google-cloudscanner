@@ -67,15 +67,6 @@ variable "grant_event_receiver" {
   default     = false
 }
 
-variable "vpc_egress" {
-  type = object({
-    network    = string
-    subnetwork = string
-  })
-  description = "Network and subnetwork ids for Direct VPC egress (private ranges only), where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting. Null for no VPC egress."
-  default     = null
-}
-
 ### Upwind Related
 
 variable "public_uri_domain" {
