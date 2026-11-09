@@ -1,0 +1,74 @@
+name: Require Jira Ticket
+
+# Local copy of the org check in upwindsecurity/infra-github-actions, which cannot run in a public repo.
+# Reports pass/fail only: no PR comment or job summary, as both are public here.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  jira-ticket:
+    name: jira-ticket
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Validate the PR against Jira
+        env:
+          TITLE:      ${{ github.event.pull_request.title }}
+          BRANCH:     ${{ github.event.pull_request.head.ref }}
+          PR_CREATED: ${{ github.event.pull_request.created_at }}
+          JIRA_API:   https://api.atlassian.com/ex/jira/2cf37d2c-a03e-4603-b743-863fccb9fcb5
+          JIRA_USER:  ${{ secrets.JIRA_BOT_EMAIL }}
+          JIRA_TOKEN: ${{ secrets.JIRA_BOT_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${JIRA_TOKEN:-}" ] || [ -z "${JIRA_USER:-}" ]; then
+            echo "::error title=Jira credential missing::JIRA_BOT_EMAIL / JIRA_BOT_TOKEN are not available to this run (fork PRs never receive them)."
+            exit 1
+          fi
+
+          CANDIDATES=$( { printf '%s\n' "$TITLE"; printf '%s\n' "$BRANCH"; } \
+                        | grep -oE '\b[A-Z][A-Z0-9]+-[1-9][0-9]*\b' \
+                        | awk '!seen[$0]++' || true)
+
+          if [ -z "$CANDIDATES" ]; then
+            echo "::error title=No Jira ticket::Add an issue key to the PR title, e.g. 'feat(UP-12345): ...'."
+            exit 1
+          fi
+
+          GOOD=""
+          for K in $CANDIDATES; do
+            RAW=$(curl -sS --max-time 20 --retry 2 --retry-connrefused -w '\n%{http_code}' \
+                    -u "$JIRA_USER:$JIRA_TOKEN" -H 'Accept: application/json' \
+                    "$JIRA_API/rest/api/3/issue/$K?fields=status,resolutiondate" 2>/dev/null || printf '\n000')
+            CODE=$(printf '%s' "$RAW" | tail -n1)
+            ISSUE=$(printf '%s' "$RAW" | sed '$d')
+
+            case "$CODE" in
+              200) ;;
+              404) echo "$K: not found, or not visible to the checker"; continue ;;
+              *)   echo "::error title=Jira error::Lookup of $K returned HTTP $CODE. Failing closed."; exit 1 ;;
+            esac
+
+            CAT=$(printf '%s' "$ISSUE" | jq -r '.fields.status.statusCategory.key')
+            RES=$(printf '%s' "$ISSUE" | jq -r '.fields.resolutiondate // ""')
+            # Closed while the PR is open is fine; closed before it was opened is retro-attaching.
+            if [ "$CAT" = "done" ] && [ -n "$RES" ] \
+               && [ "$(date -u -d "$RES" +%s)" -lt "$(date -u -d "$PR_CREATED" +%s)" ]; then
+              echo "$K: closed before this PR was opened"
+            else
+              echo "$K: ok"
+              GOOD="${GOOD}$K "
+            fi
+          done
+
+          if [ -z "$GOOD" ]; then
+            echo "::error title=Invalid Jira ticket::No open, existing issue referenced."
+            exit 1
+          fi
+          echo "::notice title=Jira ticket verified::$GOOD"
