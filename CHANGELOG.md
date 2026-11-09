@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.19.0](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.18.3...v1.19.0) (2026-11-09)
+
+### Features
+
+* **UP-11917:** plumbing to deploy volume vetter as part of gcp saas … ([#100](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/100)) ([f08cc91](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/f08cc91071f0a583494e6e754c9acd172a15ac5a))
+
 ## [1.9.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.9.0...v1.9.1) (2026-08-18)
 
 ### Bug Fixes
