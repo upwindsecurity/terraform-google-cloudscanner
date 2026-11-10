@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.9.2](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.9.1...v1.9.2) (2026-08-27)
+
+### Bug Fixes
+
+* **UP-0:** dspm instance template name collision ([#64](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/64)) ([863f7ae](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/863f7ae7f3793e7abbad0ac72a4037956e92468d))
+
 ## [1.9.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.9.0...v1.9.1) (2026-08-18)
 
 ### Bug Fixes
