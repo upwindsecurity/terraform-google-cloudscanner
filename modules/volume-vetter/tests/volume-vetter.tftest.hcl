@@ -23,6 +23,13 @@ run "defaults" {
     error_message = "upwind.io must use the prod image."
   }
 
+  # Cloud Run v2 rejects memory < 512Mi with always-allocated CPU (an apply-time error that plan
+  # doesn't surface); pin it so the combination can't regress.
+  assert {
+    condition     = google_cloud_run_v2_service.vetter.template[0].containers[0].resources[0].limits.memory == "512Mi"
+    error_message = "The vetter must request >= 512Mi (required with always-allocated CPU)."
+  }
+
   assert {
     condition = (
       { for e in google_cloud_run_v2_service.vetter.template[0].containers[0].env : e.name => e.value if e.value != null } ==
