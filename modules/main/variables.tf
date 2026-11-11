@@ -60,6 +60,17 @@ variable "scaler_vpc_egress_enabled" {
   default     = false
 }
 
+variable "binary_authorization_policy" {
+  type        = string
+  description = "Binary Authorization policy for the scaler Cloud Run job. Only needed where a GCP org policy (constraints/run.allowedBinaryAuthorizationPolicies) requires Cloud Run resources to declare one. Empty leaves it unset; \"default\" uses the project's default Binary Authorization policy; otherwise the full name of a Cloud Run platform policy (projects/<project>/platforms/cloudRun/policies/<policy>). The scaler image must then be allowed by that policy."
+  default     = ""
+
+  validation {
+    condition     = var.binary_authorization_policy == "" || var.binary_authorization_policy == "default" || can(regex("^projects/[^/]+/platforms/cloudRun/policies/[^/]+$", var.binary_authorization_policy))
+    error_message = "binary_authorization_policy must be empty, \"default\", or projects/<project>/platforms/cloudRun/policies/<policy>."
+  }
+}
+
 variable "scaler_vpc_egress" {
   type        = string
   description = "Egress setting for the scaler function's Direct VPC egress, used when scaler_vpc_egress_enabled is true."

@@ -137,3 +137,16 @@ run "name_uppercase_refused" {
 
   expect_failures = [var.name]
 }
+
+run "binary_authorization_default_policy" {
+  command = plan
+
+  variables {
+    binary_authorization_policy = "default"
+  }
+
+  assert {
+    condition     = google_cloud_run_v2_job.scaler.binary_authorization[0].use_default == true
+    error_message = "\"default\" must set use_default on the scaler job."
+  }
+}
