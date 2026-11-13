@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.16.0](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.15.0...v1.16.0) (2026-10-23)
+
+### Features
+
+* **UP-11290:** size DSPM workers with their own machine type ([#83](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/83)) ([6b756fb](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/6b756fbbf1300f7290197e5ede03ebc229a4cbdc))
+
 ## [1.9.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.9.0...v1.9.1) (2026-08-18)
 
 ### Bug Fixes
