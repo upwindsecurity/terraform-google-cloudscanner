@@ -21,3 +21,17 @@ run "workers_block_project_ssh_keys" {
     error_message = "Scanner and DSPM worker templates must set block-project-ssh-keys and enable-oslogin to TRUE."
   }
 }
+
+# Projects enforcing constraints/compute.disableSerialPortAccess reject a VM that enables the
+# interactive serial console, and the MIG creates workers after apply, so the deploy still succeeds.
+run "workers_leave_serial_port_access_off" {
+  command = plan
+
+  assert {
+    condition = alltrue([
+      for t in concat(google_compute_region_instance_template.cloudscanner_inst_templates, google_compute_region_instance_template.cloudscanner_dspm_inst_templates) :
+      !contains(keys(t.metadata), "serial-port-enable")
+    ])
+    error_message = "Scanner and DSPM worker templates must not set serial-port-enable."
+  }
+}

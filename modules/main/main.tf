@@ -214,7 +214,6 @@ ENVEOF
   metadata = {
     block-project-ssh-keys = "TRUE"
     enable-oslogin         = "TRUE"
-    serial-port-enable     = "TRUE"
   }
 
   scheduling {
@@ -458,7 +457,6 @@ ENVEOF
   metadata = {
     block-project-ssh-keys = "TRUE"
     enable-oslogin         = "TRUE"
-    serial-port-enable     = "TRUE"
   }
 
   scheduling {
