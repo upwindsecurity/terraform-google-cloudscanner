@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.13.0](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.12.0...v1.13.0) (2026-10-22)
+
+### Features
+
+* **UP-11131:** enable use of GCP on-demand workers ([#80](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/80)) ([fdac2d9](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/fdac2d96f64fd1ef06ff0c64a10bcfd6ccb5dd0a))
+
 ## [1.9.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.9.0...v1.9.1) (2026-08-18)
 
 ### Bug Fixes
