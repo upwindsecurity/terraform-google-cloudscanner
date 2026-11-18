@@ -29,8 +29,10 @@ resource "google_cloud_run_v2_service" "vetter" {
       image = (var.public_uri_domain == "upwind.io") ? local.prod_vetter_image : local.dev_vetter_image
 
       resources {
+        # Cloud Run v2 requires memory >= 512Mi when CPU is always-allocated (unthrottled), which this
+        # service relies on so an event spike is handled without cold-start throttling.
         limits = {
-          memory = "256Mi"
+          memory = "512Mi"
           cpu    = "1"
         }
       }
