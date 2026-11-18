@@ -42,6 +42,17 @@ variable "dry_run" {
   default     = false
 }
 
+variable "customer_credentials" {
+  type        = string
+  description = "How the cleaner reaches customer projects: \"wif\" through the customer's Upwind workload identity provider (SaaS), or \"adc\" as its own service account (outpost)."
+  default     = "wif"
+
+  validation {
+    condition     = contains(["wif", "adc"], var.customer_credentials)
+    error_message = "The customer_credentials must be either 'wif' or 'adc'."
+  }
+}
+
 variable "grant_invoker" {
   type        = bool
   description = "Grant the service account roles/run.invoker on the cleaner job, so Cloud Scheduler can start it. Leave false where the service account already has it."

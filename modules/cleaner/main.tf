@@ -1,6 +1,6 @@
 locals {
-  dev_cleaner_image  = "us-east1-docker.pkg.dev/upwindsecurity/images-dev/cloudscanner/saascleaner:latest"
-  prod_cleaner_image = "us-east1-docker.pkg.dev/upwindsecurity/images/cloudscanner/saascleaner:latest"
+  dev_cleaner_image  = "us-east1-docker.pkg.dev/upwindsecurity/images-dev/cloudscanner/gcpcleaner:latest"
+  prod_cleaner_image = "us-east1-docker.pkg.dev/upwindsecurity/images/cloudscanner/gcpcleaner:latest"
 
   # The cleaner takes a go-common region name, in which dev regions are prefixed.
   upwind_region = var.public_uri_domain == "upwind.dev" ? "dev-${var.upwind_infra_region}" : var.upwind_infra_region
@@ -43,6 +43,11 @@ resource "google_cloud_run_v2_job" "cleaner" {
         env {
           name  = "DRY_RUN"
           value = tostring(var.dry_run)
+        }
+
+        env {
+          name  = "CUSTOMER_CREDENTIALS"
+          value = var.customer_credentials
         }
 
         env {

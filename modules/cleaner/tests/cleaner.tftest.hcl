@@ -17,16 +17,16 @@ run "defaults" {
   }
 
   assert {
-    condition     = endswith(google_cloud_run_v2_job.cleaner.template[0].template[0].containers[0].image, "/images/cloudscanner/saascleaner:latest")
+    condition     = endswith(google_cloud_run_v2_job.cleaner.template[0].template[0].containers[0].image, "/images/cloudscanner/cleaner:latest")
     error_message = "upwind.io must use the prod image."
   }
 
   assert {
     condition = (
       { for e in google_cloud_run_v2_job.cleaner.template[0].template[0].containers[0].env : e.name => e.value if e.value != null } ==
-      { GCP_PROJECT_ID = "proj-a", UPWIND_REGION = "us", DRY_RUN = "false" }
+      { GCP_PROJECT_ID = "proj-a", UPWIND_REGION = "us", DRY_RUN = "false", CUSTOMER_CREDENTIALS = "wif" }
     )
-    error_message = "The cleaner must get the project and the region, and delete by default."
+    error_message = "The cleaner must get the project and the region, delete by default, and reach customer projects through WIF by default."
   }
 
   assert {
@@ -44,22 +44,23 @@ run "dev_dry_run" {
   command = plan
 
   variables {
-    public_uri_domain   = "upwind.dev"
-    upwind_infra_region = "eu"
-    dry_run             = true
+    public_uri_domain    = "upwind.dev"
+    upwind_infra_region  = "eu"
+    dry_run              = true
+    customer_credentials = "adc"
   }
 
   assert {
-    condition     = endswith(google_cloud_run_v2_job.cleaner.template[0].template[0].containers[0].image, "/images-dev/cloudscanner/saascleaner:latest")
+    condition     = endswith(google_cloud_run_v2_job.cleaner.template[0].template[0].containers[0].image, "/images-dev/cloudscanner/cleaner:latest")
     error_message = "upwind.dev must use the dev image."
   }
 
   assert {
     condition = (
       { for e in google_cloud_run_v2_job.cleaner.template[0].template[0].containers[0].env : e.name => e.value if e.value != null } ==
-      { GCP_PROJECT_ID = "proj-a", UPWIND_REGION = "dev-eu", DRY_RUN = "true" }
+      { GCP_PROJECT_ID = "proj-a", UPWIND_REGION = "dev-eu", DRY_RUN = "true", CUSTOMER_CREDENTIALS = "adc" }
     )
-    error_message = "A dev deploy must name the dev region, and dry_run = true must reach the job."
+    error_message = "A dev deploy must name the dev region, and dry_run and customer_credentials must reach the job."
   }
 }
 
@@ -93,4 +94,14 @@ run "name_trailing_hyphen_refused" {
   }
 
   expect_failures = [var.name]
+}
+
+run "customer_credentials_refused" {
+  command = plan
+
+  variables {
+    customer_credentials = "key"
+  }
+
+  expect_failures = [var.customer_credentials]
 }
