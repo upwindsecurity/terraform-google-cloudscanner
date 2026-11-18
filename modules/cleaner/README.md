@@ -68,8 +68,9 @@ No modules.
 | <a name="input_project"></a> [project](#input\_project) | The scanner project the cleaner runs in and cleans. | `string` | n/a | yes |
 | <a name="input_public_uri_domain"></a> [public\_uri\_domain](#input\_public\_uri\_domain) | The public URI domain. | `string` | `"upwind.io"` | no |
 | <a name="input_region"></a> [region](#input\_region) | The region for the cleaner job and its Scheduler job. | `string` | `"us-central1"` | no |
+| <a name="input_scheduler_service_account_email"></a> [scheduler\_service\_account\_email](#input\_scheduler\_service\_account\_email) | The service account Cloud Scheduler starts the cleaner as. Defaults to service\_account\_email. | `string` | `null` | no |
 | <a name="input_secret_version"></a> [secret\_version](#input\_secret\_version) | Secret Manager version for the client id/secret. Defaults to "latest", so a rotated credential is picked up on the next run with no apply. | `string` | `"latest"` | no |
-| <a name="input_service_account_email"></a> [service\_account\_email](#input\_service\_account\_email) | The service account the cleaner runs as, and that Cloud Scheduler uses to start it: the customer's hub account. | `string` | n/a | yes |
+| <a name="input_service_account_email"></a> [service\_account\_email](#input\_service\_account\_email) | The service account the cleaner runs as, and that Cloud Scheduler uses to start it unless scheduler\_service\_account\_email is set. | `string` | n/a | yes |
 | <a name="input_upwind_infra_region"></a> [upwind\_infra\_region](#input\_upwind\_infra\_region) | The Upwind infrastructure region the cleaner reports to. | `string` | `"us"` | no |
 | <a name="input_vpc_egress"></a> [vpc\_egress](#input\_vpc\_egress) | Network and subnetwork ids for Direct VPC egress (private ranges only), where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting. Null for no VPC egress. | <pre>object({<br/>    network    = string<br/>    subnetwork = string<br/>  })</pre> | `null` | no |
 

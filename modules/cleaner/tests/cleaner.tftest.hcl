@@ -35,6 +35,11 @@ run "defaults" {
   }
 
   assert {
+    condition     = google_cloud_scheduler_job.cleaner.http_target[0].oauth_token[0].service_account_email == "upwind-abcde@hub.iam.gserviceaccount.com"
+    error_message = "The Scheduler job must start the cleaner as its service account by default."
+  }
+
+  assert {
     condition     = length(google_cloud_run_v2_job_iam_member.invoker) == 0 && length(google_cloud_run_v2_job.cleaner.template[0].template[0].vpc_access) == 0
     error_message = "No invoker grant and no VPC egress by default."
   }
@@ -68,7 +73,8 @@ run "grants_and_egress" {
   command = plan
 
   variables {
-    grant_invoker = true
+    grant_invoker                   = true
+    scheduler_service_account_email = "upwind-scaler-abcde@orch.iam.gserviceaccount.com"
     vpc_egress = {
       network    = "projects/proj-a/global/networks/upwind-scaler"
       subnetwork = "projects/proj-a/regions/us-central1/subnetworks/upwind-scaler"
@@ -76,8 +82,13 @@ run "grants_and_egress" {
   }
 
   assert {
-    condition     = google_cloud_run_v2_job_iam_member.invoker[0].role == "roles/run.invoker" && google_cloud_run_v2_job_iam_member.invoker[0].member == "serviceAccount:upwind-abcde@hub.iam.gserviceaccount.com"
-    error_message = "The invoker grant must give the service account run.invoker on the job."
+    condition     = google_cloud_run_v2_job_iam_member.invoker[0].role == "roles/run.invoker" && google_cloud_run_v2_job_iam_member.invoker[0].member == "serviceAccount:upwind-scaler-abcde@orch.iam.gserviceaccount.com"
+    error_message = "The invoker grant must give the scheduler's service account run.invoker on the job."
+  }
+
+  assert {
+    condition     = google_cloud_scheduler_job.cleaner.http_target[0].oauth_token[0].service_account_email == "upwind-scaler-abcde@orch.iam.gserviceaccount.com" && google_cloud_run_v2_job.cleaner.template[0].template[0].service_account == "upwind-abcde@hub.iam.gserviceaccount.com"
+    error_message = "The Scheduler job must start the cleaner as scheduler_service_account_email, and the cleaner keep running as service_account_email."
   }
 
   assert {

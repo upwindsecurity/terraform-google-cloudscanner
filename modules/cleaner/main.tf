@@ -4,6 +4,8 @@ locals {
 
   # The cleaner takes a go-common region name, in which dev regions are prefixed.
   upwind_region = var.public_uri_domain == "upwind.dev" ? "dev-${var.upwind_infra_region}" : var.upwind_infra_region
+
+  scheduler_service_account_email = coalesce(var.scheduler_service_account_email, var.service_account_email)
 }
 
 provider "google" {
@@ -105,7 +107,7 @@ resource "google_cloud_scheduler_job" "cleaner" {
     uri         = "https://run.googleapis.com/v2/projects/${var.project}/locations/${google_cloud_run_v2_job.cleaner.location}/jobs/${google_cloud_run_v2_job.cleaner.name}:run"
 
     oauth_token {
-      service_account_email = var.service_account_email
+      service_account_email = local.scheduler_service_account_email
       scope                 = "https://www.googleapis.com/auth/cloud-platform"
     }
   }
@@ -119,5 +121,5 @@ resource "google_cloud_run_v2_job_iam_member" "invoker" {
   name     = google_cloud_run_v2_job.cleaner.name
   location = google_cloud_run_v2_job.cleaner.location
   role     = "roles/run.invoker"
-  member   = "serviceAccount:${var.service_account_email}"
+  member   = "serviceAccount:${local.scheduler_service_account_email}"
 }

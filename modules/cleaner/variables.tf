@@ -12,7 +12,13 @@ variable "name" {
 
 variable "service_account_email" {
   type        = string
-  description = "The service account the cleaner runs as, and that Cloud Scheduler uses to start it: the customer's hub account."
+  description = "The service account the cleaner runs as, and that Cloud Scheduler uses to start it unless scheduler_service_account_email is set."
+}
+
+variable "scheduler_service_account_email" {
+  type        = string
+  description = "The service account Cloud Scheduler starts the cleaner as. Defaults to service_account_email."
+  default     = null
 }
 
 variable "client_id_secret" {
