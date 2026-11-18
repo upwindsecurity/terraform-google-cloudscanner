@@ -214,7 +214,6 @@ ENVEOF
   metadata = {
     block-project-ssh-keys = "TRUE"
     enable-oslogin         = "TRUE"
-    serial-port-enable     = "TRUE"
   }
 
   scheduling {
@@ -458,7 +457,6 @@ ENVEOF
   metadata = {
     block-project-ssh-keys = "TRUE"
     enable-oslogin         = "TRUE"
-    serial-port-enable     = "TRUE"
   }
 
   scheduling {
@@ -557,6 +555,16 @@ resource "google_cloud_run_v2_job" "scaler_function" {
   name                = "upwind-scaler-function-${var.scanner_id}"
   location            = var.region
   deletion_protection = false
+
+  # Unset by default. Only needed to satisfy the constraints/run.allowedBinaryAuthorizationPolicies
+  # org policy, which rejects Cloud Run resources that declare no Binary Authorization policy.
+  dynamic "binary_authorization" {
+    for_each = var.binary_authorization_policy == "" ? [] : [1]
+    content {
+      use_default = var.binary_authorization_policy == "default" ? true : null
+      policy      = var.binary_authorization_policy == "default" ? null : var.binary_authorization_policy
+    }
+  }
 
   template {
     template {

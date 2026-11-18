@@ -42,6 +42,17 @@ variable "scaler_vpc_egress_enabled" {
   default     = false
 }
 
+variable "binary_authorization_policy" {
+  type        = string
+  description = "Binary Authorization policy for the scaler Cloud Run job. Only needed where a GCP org policy (constraints/run.allowedBinaryAuthorizationPolicies) requires Cloud Run resources to declare one. Empty leaves it unset; \"default\" uses the project's default Binary Authorization policy; otherwise the full name of a Cloud Run platform policy (projects/<project>/platforms/cloudRun/policies/<policy>). The scaler image must then be allowed by that policy."
+  default     = ""
+
+  validation {
+    condition     = var.binary_authorization_policy == "" || var.binary_authorization_policy == "default" || can(regex("^projects/[^/]+/platforms/cloudRun/policies/[^/]+$", var.binary_authorization_policy))
+    error_message = "binary_authorization_policy must be empty, \"default\", or projects/<project>/platforms/cloudRun/policies/<policy>."
+  }
+}
+
 variable "grant_invoker" {
   type        = bool
   description = "Grant the scaler service account roles/run.invoker on the scaler job, so Cloud Scheduler can start it. Leave false where the service account already has it."

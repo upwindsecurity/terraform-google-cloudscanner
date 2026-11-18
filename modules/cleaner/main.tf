@@ -1,9 +1,16 @@
 locals {
-  dev_cleaner_image  = "us-east1-docker.pkg.dev/upwindsecurity/images-dev/cloudscanner/saascleaner:latest"
-  prod_cleaner_image = "us-east1-docker.pkg.dev/upwindsecurity/images/cloudscanner/saascleaner:latest"
+  dev_cleaner_image  = "us-east1-docker.pkg.dev/upwindsecurity/images-dev/cloudscanner/gcpcleaner:latest"
+  prod_cleaner_image = "us-east1-docker.pkg.dev/upwindsecurity/images/cloudscanner/gcpcleaner:latest"
 
   # The cleaner takes a go-common region name, in which dev regions are prefixed.
   upwind_region = var.public_uri_domain == "upwind.dev" ? "dev-${var.upwind_infra_region}" : var.upwind_infra_region
+
+  scheduler_service_account_email = coalesce(var.scheduler_service_account_email, var.service_account_email)
+
+  vpc_egress = var.cleaner_vpc_egress_enabled ? {
+    network    = google_compute_network.cleaner[0].id
+    subnetwork = google_compute_subnetwork.cleaner[0].id
+  } : var.vpc_egress
 }
 
 provider "google" {
@@ -17,6 +24,15 @@ resource "google_cloud_run_v2_job" "cleaner" {
   name                = var.name
   location            = var.region
   deletion_protection = false
+
+  # Only needed to satisfy the constraints/run.allowedBinaryAuthorizationPolicies org policy.
+  dynamic "binary_authorization" {
+    for_each = var.binary_authorization_policy == "" ? [] : [1]
+    content {
+      use_default = var.binary_authorization_policy == "default" ? true : null
+      policy      = var.binary_authorization_policy == "default" ? null : var.binary_authorization_policy
+    }
+  }
 
   template {
     template {
@@ -46,6 +62,11 @@ resource "google_cloud_run_v2_job" "cleaner" {
         }
 
         env {
+          name  = "CUSTOMER_CREDENTIALS"
+          value = var.customer_credentials
+        }
+
+        env {
           name = "UPWIND_AUTH_CLIENT_ID"
           value_source {
             secret_key_ref {
@@ -67,7 +88,7 @@ resource "google_cloud_run_v2_job" "cleaner" {
       }
 
       dynamic "vpc_access" {
-        for_each = var.vpc_egress == null ? [] : [var.vpc_egress]
+        for_each = local.vpc_egress == null ? [] : [local.vpc_egress]
         content {
           network_interfaces {
             network    = vpc_access.value.network
@@ -100,7 +121,7 @@ resource "google_cloud_scheduler_job" "cleaner" {
     uri         = "https://run.googleapis.com/v2/projects/${var.project}/locations/${google_cloud_run_v2_job.cleaner.location}/jobs/${google_cloud_run_v2_job.cleaner.name}:run"
 
     oauth_token {
-      service_account_email = var.service_account_email
+      service_account_email = local.scheduler_service_account_email
       scope                 = "https://www.googleapis.com/auth/cloud-platform"
     }
   }
@@ -114,5 +135,5 @@ resource "google_cloud_run_v2_job_iam_member" "invoker" {
   name     = google_cloud_run_v2_job.cleaner.name
   location = google_cloud_run_v2_job.cleaner.location
   role     = "roles/run.invoker"
-  member   = "serviceAccount:${var.service_account_email}"
+  member   = "serviceAccount:${local.scheduler_service_account_email}"
 }
