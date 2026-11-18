@@ -12,7 +12,13 @@ variable "name" {
 
 variable "service_account_email" {
   type        = string
-  description = "The service account the cleaner runs as, and that Cloud Scheduler uses to start it: the customer's hub account."
+  description = "The service account the cleaner runs as, and that Cloud Scheduler uses to start it unless scheduler_service_account_email is set."
+}
+
+variable "scheduler_service_account_email" {
+  type        = string
+  description = "The service account Cloud Scheduler starts the cleaner as. Defaults to service_account_email."
+  default     = null
 }
 
 variable "client_id_secret" {
@@ -42,6 +48,17 @@ variable "dry_run" {
   default     = false
 }
 
+variable "customer_credentials" {
+  type        = string
+  description = "How the cleaner reaches customer projects: \"wif\" through the customer's Upwind workload identity provider (SaaS), or \"adc\" as its own service account (outpost)."
+  default     = "wif"
+
+  validation {
+    condition     = contains(["wif", "adc"], var.customer_credentials)
+    error_message = "The customer_credentials must be either 'wif' or 'adc'."
+  }
+}
+
 variable "grant_invoker" {
   type        = bool
   description = "Grant the service account roles/run.invoker on the cleaner job, so Cloud Scheduler can start it. Leave false where the service account already has it."
@@ -55,6 +72,28 @@ variable "vpc_egress" {
   })
   description = "Network and subnetwork ids for Direct VPC egress (private ranges only), where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting. Null for no VPC egress."
   default     = null
+}
+
+variable "cleaner_vpc_egress_enabled" {
+  type        = bool
+  description = "Attach the cleaner to its own small VPC with Direct VPC egress for private ranges only, where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting and no network exists to pass as vpc_egress. Cloud Run holds addresses in the subnet for hours after the job is deleted, blocking network teardown."
+  default     = false
+
+  validation {
+    condition     = !(var.cleaner_vpc_egress_enabled && var.vpc_egress != null)
+    error_message = "Set at most one of cleaner_vpc_egress_enabled and vpc_egress."
+  }
+}
+
+variable "binary_authorization_policy" {
+  type        = string
+  description = "Binary Authorization policy for the cleaner Cloud Run job. Only needed where a GCP org policy (constraints/run.allowedBinaryAuthorizationPolicies) requires Cloud Run resources to declare one. Empty leaves it unset; \"default\" uses the project's default Binary Authorization policy; otherwise the full name of a Cloud Run platform policy (projects/<project>/platforms/cloudRun/policies/<policy>). The cleaner image must then be allowed by that policy."
+  default     = ""
+
+  validation {
+    condition     = var.binary_authorization_policy == "" || var.binary_authorization_policy == "default" || can(regex("^projects/[^/]+/platforms/cloudRun/policies/[^/]+$", var.binary_authorization_policy))
+    error_message = "binary_authorization_policy must be empty, \"default\", or projects/<project>/platforms/cloudRun/policies/<policy>."
+  }
 }
 
 ### Upwind Related

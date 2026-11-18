@@ -51,14 +51,19 @@ No modules.
 | [google_cloud_run_v2_job.cleaner](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_job) | resource |
 | [google_cloud_run_v2_job_iam_member.invoker](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_job_iam_member) | resource |
 | [google_cloud_scheduler_job.cleaner](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_scheduler_job) | resource |
+| [google_compute_network.cleaner](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_network) | resource |
+| [google_compute_subnetwork.cleaner](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_access_token"></a> [access\_token](#input\_access\_token) | An OAuth access token to authenticate with Google Cloud. Leave unset to use the provider's ambient credentials (Application Default Credentials, e.g. from `gcloud auth application-default login` or a CI workload identity). | `string` | `null` | no |
+| <a name="input_binary_authorization_policy"></a> [binary\_authorization\_policy](#input\_binary\_authorization\_policy) | Binary Authorization policy for the cleaner Cloud Run job. Only needed where a GCP org policy (constraints/run.allowedBinaryAuthorizationPolicies) requires Cloud Run resources to declare one. Empty leaves it unset; "default" uses the project's default Binary Authorization policy; otherwise the full name of a Cloud Run platform policy (projects/<project>/platforms/cloudRun/policies/<policy>). The cleaner image must then be allowed by that policy. | `string` | `""` | no |
+| <a name="input_cleaner_vpc_egress_enabled"></a> [cleaner\_vpc\_egress\_enabled](#input\_cleaner\_vpc\_egress\_enabled) | Attach the cleaner to its own small VPC with Direct VPC egress for private ranges only, where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting and no network exists to pass as vpc\_egress. Cloud Run holds addresses in the subnet for hours after the job is deleted, blocking network teardown. | `bool` | `false` | no |
 | <a name="input_client_id_secret"></a> [client\_id\_secret](#input\_client\_id\_secret) | Secret Manager secret id, in var.project, holding the Upwind client id. | `string` | n/a | yes |
 | <a name="input_client_secret_secret"></a> [client\_secret\_secret](#input\_client\_secret\_secret) | Secret Manager secret id, in var.project, holding the Upwind client secret. | `string` | n/a | yes |
+| <a name="input_customer_credentials"></a> [customer\_credentials](#input\_customer\_credentials) | How the cleaner reaches customer projects: "wif" through the customer's Upwind workload identity provider (SaaS), or "adc" as its own service account (outpost). | `string` | `"wif"` | no |
 | <a name="input_default_labels"></a> [default\_labels](#input\_default\_labels) | Default labels applied to all resources (can be overridden) | `map(string)` | <pre>{<br/>  "component": "upwind",<br/>  "managed_by": "terraform"<br/>}</pre> | no |
 | <a name="input_dry_run"></a> [dry\_run](#input\_dry\_run) | Report what would be deleted and delete nothing. | `bool` | `false` | no |
 | <a name="input_grant_invoker"></a> [grant\_invoker](#input\_grant\_invoker) | Grant the service account roles/run.invoker on the cleaner job, so Cloud Scheduler can start it. Leave false where the service account already has it. | `bool` | `false` | no |
@@ -67,8 +72,9 @@ No modules.
 | <a name="input_project"></a> [project](#input\_project) | The scanner project the cleaner runs in and cleans. | `string` | n/a | yes |
 | <a name="input_public_uri_domain"></a> [public\_uri\_domain](#input\_public\_uri\_domain) | The public URI domain. | `string` | `"upwind.io"` | no |
 | <a name="input_region"></a> [region](#input\_region) | The region for the cleaner job and its Scheduler job. | `string` | `"us-central1"` | no |
+| <a name="input_scheduler_service_account_email"></a> [scheduler\_service\_account\_email](#input\_scheduler\_service\_account\_email) | The service account Cloud Scheduler starts the cleaner as. Defaults to service\_account\_email. | `string` | `null` | no |
 | <a name="input_secret_version"></a> [secret\_version](#input\_secret\_version) | Secret Manager version for the client id/secret. Defaults to "latest", so a rotated credential is picked up on the next run with no apply. | `string` | `"latest"` | no |
-| <a name="input_service_account_email"></a> [service\_account\_email](#input\_service\_account\_email) | The service account the cleaner runs as, and that Cloud Scheduler uses to start it: the customer's hub account. | `string` | n/a | yes |
+| <a name="input_service_account_email"></a> [service\_account\_email](#input\_service\_account\_email) | The service account the cleaner runs as, and that Cloud Scheduler uses to start it unless scheduler\_service\_account\_email is set. | `string` | n/a | yes |
 | <a name="input_upwind_infra_region"></a> [upwind\_infra\_region](#input\_upwind\_infra\_region) | The Upwind infrastructure region the cleaner reports to. | `string` | `"us"` | no |
 | <a name="input_vpc_egress"></a> [vpc\_egress](#input\_vpc\_egress) | Network and subnetwork ids for Direct VPC egress (private ranges only), where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting. Null for no VPC egress. | <pre>object({<br/>    network    = string<br/>    subnetwork = string<br/>  })</pre> | `null` | no |
 
