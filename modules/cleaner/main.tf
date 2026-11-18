@@ -6,6 +6,11 @@ locals {
   upwind_region = var.public_uri_domain == "upwind.dev" ? "dev-${var.upwind_infra_region}" : var.upwind_infra_region
 
   scheduler_service_account_email = coalesce(var.scheduler_service_account_email, var.service_account_email)
+
+  vpc_egress = var.cleaner_vpc_egress_enabled ? {
+    network    = google_compute_network.cleaner[0].id
+    subnetwork = google_compute_subnetwork.cleaner[0].id
+  } : var.vpc_egress
 }
 
 provider "google" {
@@ -19,6 +24,15 @@ resource "google_cloud_run_v2_job" "cleaner" {
   name                = var.name
   location            = var.region
   deletion_protection = false
+
+  # Only needed to satisfy the constraints/run.allowedBinaryAuthorizationPolicies org policy.
+  dynamic "binary_authorization" {
+    for_each = var.binary_authorization_policy == "" ? [] : [1]
+    content {
+      use_default = var.binary_authorization_policy == "default" ? true : null
+      policy      = var.binary_authorization_policy == "default" ? null : var.binary_authorization_policy
+    }
+  }
 
   template {
     template {
@@ -74,7 +88,7 @@ resource "google_cloud_run_v2_job" "cleaner" {
       }
 
       dynamic "vpc_access" {
-        for_each = var.vpc_egress == null ? [] : [var.vpc_egress]
+        for_each = local.vpc_egress == null ? [] : [local.vpc_egress]
         content {
           network_interfaces {
             network    = vpc_access.value.network

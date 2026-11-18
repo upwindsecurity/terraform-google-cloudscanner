@@ -74,6 +74,28 @@ variable "vpc_egress" {
   default     = null
 }
 
+variable "cleaner_vpc_egress_enabled" {
+  type        = bool
+  description = "Attach the cleaner to its own small VPC with Direct VPC egress for private ranges only, where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting and no network exists to pass as vpc_egress. Cloud Run holds addresses in the subnet for hours after the job is deleted, blocking network teardown."
+  default     = false
+
+  validation {
+    condition     = !(var.cleaner_vpc_egress_enabled && var.vpc_egress != null)
+    error_message = "Set at most one of cleaner_vpc_egress_enabled and vpc_egress."
+  }
+}
+
+variable "binary_authorization_policy" {
+  type        = string
+  description = "Binary Authorization policy for the cleaner Cloud Run job. Only needed where a GCP org policy (constraints/run.allowedBinaryAuthorizationPolicies) requires Cloud Run resources to declare one. Empty leaves it unset; \"default\" uses the project's default Binary Authorization policy; otherwise the full name of a Cloud Run platform policy (projects/<project>/platforms/cloudRun/policies/<policy>). The cleaner image must then be allowed by that policy."
+  default     = ""
+
+  validation {
+    condition     = var.binary_authorization_policy == "" || var.binary_authorization_policy == "default" || can(regex("^projects/[^/]+/platforms/cloudRun/policies/[^/]+$", var.binary_authorization_policy))
+    error_message = "binary_authorization_policy must be empty, \"default\", or projects/<project>/platforms/cloudRun/policies/<policy>."
+  }
+}
+
 ### Upwind Related
 
 variable "public_uri_domain" {

@@ -43,6 +43,11 @@ run "defaults" {
     condition     = length(google_cloud_run_v2_job_iam_member.invoker) == 0 && length(google_cloud_run_v2_job.cleaner.template[0].template[0].vpc_access) == 0
     error_message = "No invoker grant and no VPC egress by default."
   }
+
+  assert {
+    condition     = length(google_compute_network.cleaner) == 0 && length(google_cloud_run_v2_job.cleaner.binary_authorization) == 0
+    error_message = "No network of its own and no Binary Authorization policy by default."
+  }
 }
 
 run "dev_dry_run" {
@@ -115,4 +120,76 @@ run "customer_credentials_refused" {
   }
 
   expect_failures = [var.customer_credentials]
+}
+
+run "own_network_egress" {
+  command = apply
+
+  variables {
+    cleaner_vpc_egress_enabled = true
+  }
+
+  assert {
+    condition = (
+      google_cloud_run_v2_job.cleaner.template[0].template[0].vpc_access[0].network_interfaces[0].network == google_compute_network.cleaner[0].id &&
+      google_cloud_run_v2_job.cleaner.template[0].template[0].vpc_access[0].network_interfaces[0].subnetwork == google_compute_subnetwork.cleaner[0].id &&
+      google_cloud_run_v2_job.cleaner.template[0].template[0].vpc_access[0].egress == "PRIVATE_RANGES_ONLY"
+    )
+    error_message = "cleaner_vpc_egress_enabled must attach the job to its own network, private ranges only."
+  }
+
+  assert {
+    condition     = google_compute_subnetwork.cleaner[0].region == "us-central1"
+    error_message = "The cleaner's subnetwork must be in the job's region."
+  }
+}
+
+run "both_egress_refused" {
+  command = plan
+
+  variables {
+    cleaner_vpc_egress_enabled = true
+    vpc_egress = {
+      network    = "projects/proj-a/global/networks/upwind-scaler"
+      subnetwork = "projects/proj-a/regions/us-central1/subnetworks/upwind-scaler"
+    }
+  }
+
+  expect_failures = [var.cleaner_vpc_egress_enabled]
+}
+
+run "binary_authorization_default_policy" {
+  command = plan
+
+  variables {
+    binary_authorization_policy = "default"
+  }
+
+  assert {
+    condition     = google_cloud_run_v2_job.cleaner.binary_authorization[0].use_default == true && google_cloud_run_v2_job.cleaner.binary_authorization[0].policy == null
+    error_message = "\"default\" must use the project's default Binary Authorization policy."
+  }
+}
+
+run "binary_authorization_named_policy" {
+  command = plan
+
+  variables {
+    binary_authorization_policy = "projects/proj-a/platforms/cloudRun/policies/upwind"
+  }
+
+  assert {
+    condition     = google_cloud_run_v2_job.cleaner.binary_authorization[0].policy == "projects/proj-a/platforms/cloudRun/policies/upwind" && google_cloud_run_v2_job.cleaner.binary_authorization[0].use_default == null
+    error_message = "A named policy must reach the job."
+  }
+}
+
+run "binary_authorization_policy_refused" {
+  command = plan
+
+  variables {
+    binary_authorization_policy = "upwind"
+  }
+
+  expect_failures = [var.binary_authorization_policy]
 }
