@@ -17,7 +17,7 @@ run "defaults" {
   }
 
   assert {
-    condition     = endswith(google_cloud_run_v2_job.cleaner.template[0].template[0].containers[0].image, "/images/cloudscanner/cleaner:latest")
+    condition     = endswith(google_cloud_run_v2_job.cleaner.template[0].template[0].containers[0].image, "/images/cloudscanner/gcpcleaner:latest")
     error_message = "upwind.io must use the prod image."
   }
 
@@ -61,7 +61,7 @@ run "dev_dry_run" {
   }
 
   assert {
-    condition     = endswith(google_cloud_run_v2_job.cleaner.template[0].template[0].containers[0].image, "/images-dev/cloudscanner/cleaner:latest")
+    condition     = endswith(google_cloud_run_v2_job.cleaner.template[0].template[0].containers[0].image, "/images-dev/cloudscanner/gcpcleaner:latest")
     error_message = "upwind.dev must use the dev image."
   }
 
