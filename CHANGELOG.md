@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.20.0](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.19.0...v1.20.0) (2026-11-11)
+
+### Features
+
+* **UP-13508:** add variable and config for binary authorization policy on scaler ([#104](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/104)) ([8307b9c](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/8307b9c4c207c3426cc99bf6dac091eec0b3bc0f))
+
 ## [1.9.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.9.0...v1.9.1) (2026-08-18)
 
 ### Bug Fixes
