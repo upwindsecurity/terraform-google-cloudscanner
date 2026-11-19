@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.20.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.20.0...v1.20.1) (2026-11-13)
+
+### Bug Fixes
+
+* **UP-13877:** stop enabling the interactive serial console on worker templates ([#106](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/106)) ([30f4598](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/30f4598002b89f64e6777922a98beeab2494957a))
+
 ## [1.9.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.9.0...v1.9.1) (2026-08-18)
 
 ### Bug Fixes
