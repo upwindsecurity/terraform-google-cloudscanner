@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.21.2](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.21.1...v1.21.2) (2026-11-19)
+
+### Bug Fixes
+
+* **UP-11917:** update vetter memory in gcp saas ([#113](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/113)) ([0c3144b](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/0c3144b5a91ad0ecbc80a87294cf6264a097900d))
+
 ## [1.9.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.9.0...v1.9.1) (2026-08-18)
 
 ### Bug Fixes
