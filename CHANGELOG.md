@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.18.3](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.18.2...v1.18.3) (2026-11-04)
+
+### Bug Fixes
+
+* **UP-12414:** set block-project-ssh-keys on CloudScanner worker templates ([#98](https://github.com/upwindsecurity/terraform-google-cloudscanner/issues/98)) ([344f377](https://github.com/upwindsecurity/terraform-google-cloudscanner/commit/344f377c6db42029c115e1530196aa0e0169563c))
+
 ## [1.9.1](https://github.com/upwindsecurity/terraform-google-cloudscanner/compare/v1.9.0...v1.9.1) (2026-08-18)
 
 ### Bug Fixes
