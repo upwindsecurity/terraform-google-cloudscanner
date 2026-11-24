@@ -29,6 +29,11 @@ resource "google_compute_subnetwork" "cloudscanner_subnetwork" {
   network       = google_compute_network.cloudscanner_network[0].self_link
   ip_cidr_range = local.subnet_ip_cidr_range
   region        = var.region
+
+  # Flow logs are the customer's to enable on this subnet, and the deployment role cannot update subnetworks.
+  lifecycle {
+    ignore_changes = [log_config]
+  }
 }
 
 resource "google_compute_router" "cloudscanner_router" {
