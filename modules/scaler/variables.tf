@@ -38,8 +38,19 @@ variable "scanner_secret_version" {
 
 variable "scaler_vpc_egress_enabled" {
   type        = bool
-  description = "Attach the scaler to its own small VPC with Direct VPC egress for private ranges only. Only needed where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting: it delays the scaler's startup and holds addresses in the subnet for hours after the scaler is deleted, blocking network teardown."
+  description = "Attach the scaler to its own small VPC with Direct VPC egress (see scaler_vpc_egress). Only needed where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting: it delays the scaler's startup and holds addresses in the subnet for hours after the scaler is deleted, blocking network teardown."
   default     = false
+}
+
+variable "scaler_vpc_egress" {
+  type        = string
+  description = "Direct VPC egress setting, used with scaler_vpc_egress_enabled. PRIVATE_RANGES_ONLY sends only private ranges through the network. ALL_TRAFFIC sends everything through it, for an org policy that allows only all-traffic, and adds a Cloud NAT to the network so the scaler can still reach Google APIs and Upwind."
+  default     = "PRIVATE_RANGES_ONLY"
+
+  validation {
+    condition     = contains(["ALL_TRAFFIC", "PRIVATE_RANGES_ONLY"], var.scaler_vpc_egress)
+    error_message = "scaler_vpc_egress must be ALL_TRAFFIC or PRIVATE_RANGES_ONLY."
+  }
 }
 
 variable "binary_authorization_policy" {

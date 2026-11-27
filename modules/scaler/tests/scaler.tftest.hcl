@@ -73,6 +73,11 @@ run "vpc_egress" {
   }
 
   assert {
+    condition     = length(google_compute_router_nat.scaler) == 0
+    error_message = "Private-ranges egress needs no NAT."
+  }
+
+  assert {
     condition     = endswith(google_compute_subnetwork.scaler[0].ip_cidr_range, "/26") && google_compute_subnetwork.scaler[0].region == "us-central1"
     error_message = "The scaler subnet must be a /26 in the job's region."
   }
@@ -148,5 +153,24 @@ run "binary_authorization_default_policy" {
   assert {
     condition     = google_cloud_run_v2_job.scaler.binary_authorization[0].use_default == true
     error_message = "\"default\" must set use_default on the scaler job."
+  }
+}
+
+run "vpc_egress_all_traffic" {
+  command = plan
+
+  variables {
+    scaler_vpc_egress_enabled = true
+    scaler_vpc_egress         = "ALL_TRAFFIC"
+  }
+
+  assert {
+    condition     = google_cloud_run_v2_job.scaler.template[0].template[0].vpc_access[0].egress == "ALL_TRAFFIC"
+    error_message = "scaler_vpc_egress must set the job's egress."
+  }
+
+  assert {
+    condition     = length(google_compute_router_nat.scaler) == 1 && google_compute_router_nat.scaler[0].region == "us-central1"
+    error_message = "All-traffic egress needs a NAT on the scaler's network, in the job's region."
   }
 }
