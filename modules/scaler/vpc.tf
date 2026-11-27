@@ -1,3 +1,7 @@
+locals {
+  scaler_nat = var.scaler_vpc_egress_enabled && var.scaler_vpc_egress == "ALL_TRAFFIC"
+}
+
 # The scaler's own network, only for Direct VPC egress. Nothing else is attached to it, so
 # its range never meets a customer range. Deleting it can be blocked for 1-2 hours after
 # the job is deleted, while Cloud Run still holds its egress addresses.
@@ -15,4 +19,29 @@ resource "google_compute_subnetwork" "scaler" {
   region        = var.region
   network       = google_compute_network.scaler[0].id
   ip_cidr_range = "10.10.0.0/26"
+}
+
+# All-traffic egress sends Google API and Upwind calls through this network too, so it needs NAT.
+# Private-ranges egress reaches them directly and needs none.
+resource "google_compute_router" "scaler" {
+  count = local.scaler_nat ? 1 : 0
+
+  name    = var.name
+  region  = var.region
+  network = google_compute_network.scaler[0].id
+}
+
+resource "google_compute_router_nat" "scaler" {
+  count = local.scaler_nat ? 1 : 0
+
+  name                               = var.name
+  router                             = google_compute_router.scaler[0].name
+  region                             = var.region
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
+
+  subnetwork {
+    name                    = google_compute_subnetwork.scaler[0].id
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
 }

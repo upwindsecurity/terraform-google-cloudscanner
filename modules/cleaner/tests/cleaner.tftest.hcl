@@ -193,3 +193,22 @@ run "binary_authorization_policy_refused" {
 
   expect_failures = [var.binary_authorization_policy]
 }
+
+run "own_network_all_traffic" {
+  command = apply
+
+  variables {
+    cleaner_vpc_egress_enabled = true
+    cleaner_vpc_egress         = "ALL_TRAFFIC"
+  }
+
+  assert {
+    condition     = google_cloud_run_v2_job.cleaner.template[0].template[0].vpc_access[0].egress == "ALL_TRAFFIC"
+    error_message = "cleaner_vpc_egress must set the job's egress."
+  }
+
+  assert {
+    condition     = google_compute_router_nat.cleaner[0].router == google_compute_router.cleaner[0].name
+    error_message = "All-traffic egress on the cleaner's own network needs a NAT."
+  }
+}

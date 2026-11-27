@@ -94,7 +94,7 @@ resource "google_cloud_run_v2_job" "cleaner" {
             network    = vpc_access.value.network
             subnetwork = vpc_access.value.subnetwork
           }
-          egress = "PRIVATE_RANGES_ONLY"
+          egress = var.cleaner_vpc_egress
         }
       }
 

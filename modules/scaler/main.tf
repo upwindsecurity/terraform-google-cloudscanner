@@ -97,7 +97,7 @@ resource "google_cloud_run_v2_job" "scaler" {
             network    = google_compute_network.scaler[0].id
             subnetwork = google_compute_subnetwork.scaler[0].id
           }
-          egress = "PRIVATE_RANGES_ONLY"
+          egress = var.scaler_vpc_egress
         }
       }
 

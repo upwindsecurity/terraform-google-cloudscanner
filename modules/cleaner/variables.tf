@@ -70,18 +70,29 @@ variable "vpc_egress" {
     network    = string
     subnetwork = string
   })
-  description = "Network and subnetwork ids for Direct VPC egress (private ranges only), where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting. Null for no VPC egress."
+  description = "Network and subnetwork ids for Direct VPC egress (see cleaner_vpc_egress), where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting. Null for no VPC egress."
   default     = null
 }
 
 variable "cleaner_vpc_egress_enabled" {
   type        = bool
-  description = "Attach the cleaner to its own small VPC with Direct VPC egress for private ranges only, where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting and no network exists to pass as vpc_egress. Cloud Run holds addresses in the subnet for hours after the job is deleted, blocking network teardown."
+  description = "Attach the cleaner to its own small VPC with Direct VPC egress (see cleaner_vpc_egress), where a GCP org policy (constraints/run.allowedVPCEgress) requires Cloud Run resources to declare an egress setting and no network exists to pass as vpc_egress. Cloud Run holds addresses in the subnet for hours after the job is deleted, blocking network teardown."
   default     = false
 
   validation {
     condition     = !(var.cleaner_vpc_egress_enabled && var.vpc_egress != null)
     error_message = "Set at most one of cleaner_vpc_egress_enabled and vpc_egress."
+  }
+}
+
+variable "cleaner_vpc_egress" {
+  type        = string
+  description = "Direct VPC egress setting, used with cleaner_vpc_egress_enabled or vpc_egress. PRIVATE_RANGES_ONLY sends only private ranges through the network. ALL_TRAFFIC sends everything through it, for an org policy that allows only all-traffic: the cleaner's own network then gets a Cloud NAT, and a network passed as vpc_egress must already route out."
+  default     = "PRIVATE_RANGES_ONLY"
+
+  validation {
+    condition     = contains(["ALL_TRAFFIC", "PRIVATE_RANGES_ONLY"], var.cleaner_vpc_egress)
+    error_message = "cleaner_vpc_egress must be ALL_TRAFFIC or PRIVATE_RANGES_ONLY."
   }
 }
 
